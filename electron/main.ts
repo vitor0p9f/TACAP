@@ -12,7 +12,7 @@ async function createWindow() {
         width: 800,
         height: 600,
         webPreferences: {
-            preload: path.join(__dirname, "preload.ts"), // ⚡ já em JS
+            preload: path.join(__dirname, "preload.js"),
         },
     });
 
@@ -44,7 +44,7 @@ async function createWindow() {
         console.error("⚠️ Falha no carregamento:", code, desc);
     });
 }
-
+console.log("hello,world");
 app.whenReady().then(createWindow);
 
 app.on("window-all-closed", () => {
