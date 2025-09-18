@@ -59,3 +59,118 @@ no solo.
 </div>
 
 ## 💻 Sobre o software
+# TACAP - Teste Específico de Aptidão Física na Capoeira
+
+Este projeto implementa o software do **TACAP** utilizando **Electron + Vite + React + TypeScript**, permitindo registrar e analisar o desempenho físico do capoeirista.
+
+---
+
+### 🏗 Estrutura do Projeto
+
+```
+TACAP/
+│── electron/                  # Código do Electron
+│   ├── main.ts                # Processo principal
+│   ├── preload.ts             # Preload (compila para JS)
+│   └── tsconfig.json          # Config TS específico para Electron
+│
+│── src/                       # React + Vite
+│   ├── index.html             # HTML do React
+│   ├── main.tsx               # Entry point React
+│   ├── App.tsx                # Componente principal
+│   └── components/            # Componentes React
+│
+│── dist/                      # Build do Vite (produção)
+│
+│── package.json
+│── tsconfig.json
+│── vite.config.ts
+```
+
+---
+
+### 💾 Pré-requisitos
+
+* [Node.js](https://nodejs.org/) ≥ 18
+* [npm](https://www.npmjs.com/)
+* Windows / macOS / Linux
+
+---
+
+### ⚙️ Instalação
+
+1. Clone o repositório:
+
+```bash
+git clone <url-do-repo>
+cd TACAP
+```
+
+2. Instale as dependências:
+
+```bash
+npm install
+```
+
+---
+
+### 🛠 Scripts Disponíveis
+
+| Script         | Descrição                                                          |
+| -------------- | ------------------------------------------------------------------ |
+| `dev:vite`     | Inicia o servidor de desenvolvimento do Vite (React) na porta 5173 |
+| `dev:electron` | Inicia o Electron apontando para o Vite                            |
+| `dev`          | Roda Vite + Electron simultaneamente para desenvolvimento          |
+| `build`        | Gera a build de produção do React na pasta `dist`                  |
+| `start`        | Executa o Electron carregando a build de produção                  |
+
+---
+
+## 🚀 Executando em Desenvolvimento
+
+Roda o projeto em modo dev:
+
+```bash
+  npm run dev
+```
+
+* O **Vite** sobe em `http://localhost:5173`.
+* O **Electron** abre a janela carregando a URL do Vite.
+* Caso a porta 5173 esteja ocupada, altere no `vite.config.ts`.
+
+---
+
+## 🏗 Produção
+
+1. Compile o React:
+
+    ```bash
+    npm run build
+    ```
+
+2. Execute o Electron carregando a build:
+    
+    ```bash
+    npm run start
+    ```
+
+* Electron abre a janela carregando `dist/index.html`.
+* Todas as funcionalidades do preload e comunicação IPC permanecem ativas.
+
+---
+
+## 📌 Observações
+
+* **Preload:** Deve ser sempre **JS** para o Electron. O TypeScript é usado apenas para desenvolvimento, e o arquivo é compilado.
+* **Porta do Vite:** Certifique-se de que a porta 5173 está livre ou altere no `vite.config.ts`.
+* **Segurança:** Electron utiliza `contextIsolation: true` e `nodeIntegration: false`.
+* **Estrutura de pastas:** `electron/` para main + preload, `src/` para React + Vite, `dist/` para build.
+* **Debug:** Para depurar o main process, use `electron --inspect ./electron/main.js`. Para depurar o preload, coloque `console.log` e abra DevTools do Electron (`mainWindow.webContents.openDevTools()`).
+
+---
+
+## 📚 Referências
+
+* [Electron + TypeScript + Preload](https://www.electronjs.org/docs/latest/tutorial/typescript)
+* [Vite + React + TypeScript](https://vitejs.dev/guide/#scaffolding-your-first-vite-project)
+* [Electron Security Best Practices](https://www.electronjs.org/docs/latest/tutorial/security)
