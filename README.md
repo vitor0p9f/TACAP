@@ -81,6 +81,7 @@ TACAP/
 │   └── components/            # Componentes React
 │
 │── dist/                      # Build do Vite (produção)
+│── dist_electron/                      # Build do electron (produção/ executável )
 │
 │── package.json
 │── tsconfig.json
@@ -154,9 +155,6 @@ Roda o projeto em modo dev:
     npm run start
     ```
 
-* Electron abre a janela carregando `dist/index.html`.
-* Todas as funcionalidades do preload e comunicação IPC permanecem ativas.
-
 ---
 
 ## 📌 Observações
@@ -171,6 +169,6 @@ Roda o projeto em modo dev:
 
 ## 📚 Referências
 
-* [Electron + TypeScript + Preload](https://www.electronjs.org/docs/latest/tutorial/typescript)
-* [Vite + React + TypeScript](https://vitejs.dev/guide/#scaffolding-your-first-vite-project)
-* [Electron Security Best Practices](https://www.electronjs.org/docs/latest/tutorial/security)
+* [Electron First Step](https://www.electronjs.org/docs/latest/tutorial/tutorial-first-app)
+* [Electron + TypeScript ](https://www.electronjs.org/blog/typescript)
+* [Vite First Step](https://vitejs.dev/guide/#scaffolding-your-first-vite-project)
