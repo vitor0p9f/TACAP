@@ -4,7 +4,9 @@
   "description": "Aplicativo para registro de desempenho em avaliação física de capoeira",
   "main": "electron/main.ts",
   "scripts": {
-    "dev": "npx concurrently \"vite\" \"wait-on http://localhost:5173 && electron .\"",
+    "dev:vite": "vite --port 5173",
+    "dev:electron": "wait-on http://localhost:5173 && electron ./electron/main.ts",
+    "dev": "npx concurrently \"npm run dev:vite\" \"npm run dev:electron\"",
     "build": "vite build && electron-builder",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
