@@ -1,6 +1,7 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
+    "outDir": "electron/dist",
     "module": "ESNext",
     "moduleResolution": "Node",
     "target": "ES2020",
