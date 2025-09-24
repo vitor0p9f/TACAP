@@ -137,3 +137,15 @@ dist
 # Vite logs files
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+# Electron dist
+electron/dist/
+electron/node_modules/
+electron/package-lock.json
+electron/package.json
+electron/tsconfig.json
+electron/tsconfig.node.json
+electron/tsconfig.app.json
+electron/tsconfig.spec.json
+dist_electron/
+dist/

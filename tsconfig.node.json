@@ -1,12 +1,19 @@
 {
-  "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "electron/dist",
-    "module": "ESNext",
+    "module": "CommonJS",
     "moduleResolution": "Node",
     "target": "ES2020",
     "lib": ["ESNext", "DOM"],
-    "types": ["node"]
+    "types": ["node"],
+    "composite": true,
+    "noEmit": false,
+    "rootDir": "electron",
+    "isolatedModules": false,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "moduleDetection": "force"
   },
-  "include": ["electron/**/*.ts", "vite.config.ts"]
+  "include": ["electron/**/*.ts"],
+  "exclude": ["node_modules", "dist", "dist_electron"]
 }
