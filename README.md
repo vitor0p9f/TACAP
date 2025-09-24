@@ -103,7 +103,7 @@ TACAP/
 1. Clone o repositório:
 
 ```bash
-git clone <url-do-repo>
+git clone https://github.com/vitor0p9f/TACAP.git
 cd TACAP
 ```
 
