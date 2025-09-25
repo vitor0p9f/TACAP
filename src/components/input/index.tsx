@@ -27,10 +27,29 @@ const Input: React.FC<InputProps> = ({label, mask, className, value, ...rest}) =
         rest.onChange?.(event)
     }
 
+    const onKeyDownHandler = (event: React.KeyboardEvent<HTMLInputElement>) => {
+        const allowedKeys = [
+            "Backspace",
+            "Delete",
+            "ArrowLeft",
+            "ArrowRight",
+            "Tab"
+        ];
+      
+        if (!/[0-9]/.test(event.key) && !allowedKeys.includes(event.key)) {
+            event.preventDefault();
+        }
+    }
+
     return (
         <div className={`InputComponent ${className}`}>
             <label>{label}</label>
-            <input {...rest} value={internalValue} onChange={onChangeHandler}/>
+            <input 
+                {...rest} 
+                value={internalValue} 
+                onChange={onChangeHandler} 
+                onKeyDown={rest.type == "number" ? onKeyDownHandler : undefined}
+            />
         </div>
     )
 }
