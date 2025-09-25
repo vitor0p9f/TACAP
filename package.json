@@ -2,17 +2,17 @@
   "name": "tacap",
   "version": "1.0.0",
   "description": "Aplicativo para registro de desempenho em avaliação física de capoeira",
-  "main": "electron/main.ts",
+  "main": "electron/dist/main.js",
   "scripts": {
     "dev:vite": "vite --port 5173",
-    "dev:electron": "tsc -p tsconfig.node.json --watch & wait-on http://localhost:5173 && electron electron/main.ts",
-    "dev": "npx concurrently \"npm run dev:vite\" \"npm run dev:electron\"",
+    "dev:tsc": "tsc -p tsconfig.node.json --watch --preserveWatchOutput",
+    "dev:electron": "wait-on http://localhost:5173 electron/dist/main.js && electron electron/dist/main.js",
+    "dev": "npx concurrently \"npm run dev:vite\" \"npm run dev:tsc\" \"npm run dev:electron\"",
     "build:vite": "vite build",
-    "build:electron": "tsc -p tsconfig.node.json && electron-builder",
+    "build:electron": "cmd /c \"if exist electron\\dist rmdir /s /q electron\\dist && npx tsc -p tsconfig.node.json && npx electron-builder --publish=never\"",
     "build": "npm run build:vite && npm run build:electron",
-    "start": "dist_electron/\"TACAP Setup 1.0.0.exe\""
-  }
-,
+    "start": "dist_electron\\\"TACAP Setup 1.0.0.exe\""
+  },
   "private": true,
   "author": "",
   "license": "ISC",
@@ -22,6 +22,7 @@
     "directories": {
       "output": "dist_electron"
     },
+    "asar": false,
     "files": [
       "dist/**/*",
       "electron/**/*",
@@ -35,16 +36,25 @@
     }
   },
   "devDependencies": {
+    "@types/node": "^24.5.2",
     "@types/react": "^19.1.13",
     "@types/react-dom": "^19.1.9",
+    "@types/sqlite3": "^3.1.11",
     "concurrently": "^9.2.1",
+    "cross-env": "^10.0.0",
     "electron": "^38.1.2",
+    "electron-builder": "^24.6.0",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.2",
     "vite": "^7.1.5",
-    "wait-on": "^9.0.0",
-    "electron-builder": "^24.6.0"
+    "wait-on": "^9.0.0"
   },
   "dependencies": {
+    "@electron/rebuild": "^4.0.1",
+    "@types/better-sqlite3": "^7.6.13",
     "@vitejs/plugin-react": "^5.0.3",
+    "better-sqlite3": "^12.4.1",
     "react": "^19.1.1",
     "react-dom": "^19.1.1"
   }
