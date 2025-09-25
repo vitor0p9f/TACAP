@@ -2,8 +2,8 @@ import { DbProvider } from "../db";
 import { Avaliacao } from "../models/avaliacao";
 
 export class AvaliacaoService {
-    async create(data: Avaliacao): Promise<Avaliacao> {
-        const info = await DbProvider.run(`
+    create(data: Avaliacao): Avaliacao {
+        const info = DbProvider.run(`
             INSERT INTO avaliacoes (
                 voluntario_id, iacap, if_valor, potencia, rfc, pse, golpes
             ) VALUES (
@@ -13,15 +13,15 @@ export class AvaliacaoService {
         return { ...data, id: Number(info.lastID) };
     }
 
-    async listByVoluntario(voluntarioId: number): Promise<Avaliacao[]> {
-        return await DbProvider.all<Avaliacao>(
+    listByVoluntario(voluntarioId: number): Avaliacao[] {
+        return DbProvider.all<Avaliacao>(
             `SELECT * FROM avaliacoes WHERE voluntario_id = ? ORDER BY created_at DESC`,
             [voluntarioId]
         );
     }
 
-    async remove(id: number): Promise<boolean> {
-        const info = await DbProvider.run(`DELETE FROM avaliacoes WHERE id = ?`, [id]);
+    remove(id: number): boolean {
+        const info = DbProvider.run(`DELETE FROM avaliacoes WHERE id = ?`, [id]);
         return info.changes > 0;
     }
 }

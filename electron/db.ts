@@ -1,65 +1,47 @@
 import * as path from "path";
 import { app } from "electron";
-import sqlite3 from "sqlite3";
-
-sqlite3.verbose();
+import Database from "better-sqlite3";
 
 export type RunResult = { lastID: number; changes: number };
 
 export class DbProvider {
-    private static instance: sqlite3.Database | null = null;
+    private static instance: Database.Database | null = null;
 
-    private static async open(): Promise<sqlite3.Database> {
+    private static open(): Database.Database {
         const userDataDir = app.getPath("userData");
         const dbPath = path.join(userDataDir, "tacap.db");
-        return await new Promise((resolve, reject) => {
-            const db = new sqlite3.Database(dbPath, (err) => {
-                if (err) return reject(err);
-                resolve(db);
-            });
-        });
+        const db = new Database(dbPath);
+        this.applyMigrations(db);
+        return db;
     }
 
-    static async getDatabase(): Promise<sqlite3.Database> {
+    static getDatabase(): Database.Database {
         if (!this.instance) {
-            const db = await this.open();
-            await this.applyMigrations(db);
-            this.instance = db;
+            this.instance = this.open();
         }
         return this.instance!;
     }
 
-    static async run(sql: string, params?: any): Promise<RunResult> {
-        const db = await this.getDatabase();
-        return await new Promise((resolve, reject) => {
-            db.run(sql, params ?? [], function (this: sqlite3.RunResult, err) {
-                if (err) return reject(err);
-                resolve({ lastID: this.lastID, changes: this.changes });
-            });
-        });
+    static run(sql: string, params?: any): RunResult {
+        const db = this.getDatabase();
+        const stmt = db.prepare(sql);
+        const result = stmt.run(params);
+        return { lastID: result.lastInsertRowid as number, changes: result.changes };
     }
 
-    static async get<T = any>(sql: string, params?: any): Promise<T | undefined> {
-        const db = await this.getDatabase();
-        return await new Promise((resolve, reject) => {
-            db.get(sql, params ?? [], (err, row) => {
-                if (err) return reject(err);
-                resolve(row as T | undefined);
-            });
-        });
+    static get<T = any>(sql: string, params?: any): T | undefined {
+        const db = this.getDatabase();
+        const stmt = db.prepare(sql);
+        return stmt.get(params) as T | undefined;
     }
 
-    static async all<T = any>(sql: string, params?: any): Promise<T[]> {
-        const db = await this.getDatabase();
-        return await new Promise((resolve, reject) => {
-            db.all(sql, params ?? [], (err, rows) => {
-                if (err) return reject(err);
-                resolve(rows as T[]);
-            });
-        });
+    static all<T = any>(sql: string, params?: any): T[] {
+        const db = this.getDatabase();
+        const stmt = db.prepare(sql);
+        return stmt.all(params) as T[];
     }
 
-    private static async applyMigrations(db: sqlite3.Database): Promise<void> {
+    private static applyMigrations(db: Database.Database): void {
         const sql = `
             PRAGMA journal_mode = WAL;
             CREATE TABLE IF NOT EXISTS voluntarios (
@@ -91,9 +73,7 @@ export class DbProvider {
                 FOREIGN KEY(voluntario_id) REFERENCES voluntarios(id) ON DELETE CASCADE
             );
         `;
-        await new Promise<void>((resolve, reject) => {
-            db.exec(sql, (err) => (err ? reject(err) : resolve()));
-        });
+        db.exec(sql);
     }
 }
 
