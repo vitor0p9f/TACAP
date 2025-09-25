@@ -44,7 +44,7 @@ async function createWindow() {
         console.error("⚠️ Falha no carregamento:", code, desc);
     });
 }
-console.log("hello,world");
+
 app.whenReady().then(createWindow);
 
 app.on("window-all-closed", () => {
