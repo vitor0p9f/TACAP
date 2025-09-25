@@ -1,0 +1,15 @@
+button {
+    padding-right: 2rem;
+    padding-left: 2rem;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    font-size: medium;
+    border: none;
+    cursor: pointer;
+    border-radius: 0.25rem;
+    background-color: #E6E6E6;
+}
+
+button.success {
+    background-color: #00D045;
+}
