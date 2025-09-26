@@ -9,7 +9,7 @@
     "dev:electron": "wait-on http://localhost:5173 electron/dist/main.js && electron electron/dist/main.js",
     "dev": "npx concurrently \"npm run dev:vite\" \"npm run dev:tsc\" \"npm run dev:electron\"",
     "build:vite": "vite build",
-    "build:electron": "cmd /c \"if exist electron\\dist rmdir /s /q electron\\dist && npx tsc -p tsconfig.node.json && npx electron-builder --publish=never\"",
+    "build:electron": "rimraf electron/dist && npx tsc -p tsconfig.node.json && npx electron-builder --publish=never",
     "build": "npm run build:vite && npm run build:electron",
     "start": "dist_electron\\\"TACAP Setup 1.0.0.exe\""
   },
@@ -44,6 +44,7 @@
     "cross-env": "^10.0.0",
     "electron": "^38.1.2",
     "electron-builder": "^24.6.0",
+    "rimraf": "^6.0.1",
     "ts-node": "^10.9.2",
     "tsx": "^4.20.5",
     "typescript": "^5.9.2",
