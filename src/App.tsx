@@ -1,11 +1,7 @@
-import { useState } from "react";
+import SplashScreenPage from "./pages/splashscreen";
 
 export default function App() {
-
-
-    return (
-        <div style={{ padding: 20, fontFamily: "sans-serif" }}>
-          HELLO, world!
-        </div>
-    );
+  return (
+    <SplashScreenPage/>
+  );
 }
