@@ -1,11 +1,14 @@
-import { useState } from "react";
+import React from 'react';
+import { Sidebar } from './components/Sidebar/Sidebar';
+import { VolunteersPage } from './pages/VolunteersPage/VolunteersPage';
 
-export default function App() {
-
-
-    return (
-        <div style={{ padding: 20, fontFamily: "sans-serif" }}>
-          HELLO, world!
-        </div>
-    );
+function App() {
+  return (
+    <div className="container">
+      <Sidebar />
+      <VolunteersPage />
+    </div>
+  );
 }
+
+export default App;
