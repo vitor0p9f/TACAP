@@ -1,13 +1,24 @@
 import React from 'react';
-import { Sidebar } from './components/Sidebar/Sidebar';
-import { VolunteersPage } from './pages/VolunteersPage/VolunteersPage';
+import styled from 'styled-components';
+import { GlobalStyle } from './styles/global';
+import { Sidebar } from './components/Sidebar';
+import { VolunteersPage } from './pages/VolunteersPage';
+
+const AppContainer = styled.div`
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+`;
 
 function App() {
   return (
-    <div className="container">
-      <Sidebar />
-      <VolunteersPage />
-    </div>
+    <>
+      <GlobalStyle />
+      <AppContainer>
+        <Sidebar />
+        <VolunteersPage />
+      </AppContainer>
+    </>
   );
 }
 
