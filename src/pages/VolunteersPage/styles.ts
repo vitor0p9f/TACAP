@@ -5,6 +5,5 @@ export const Container = styled.main`
     padding: 24px 32px;
     display: flex;
     flex-direction: column;
-    height: 100vh;
     overflow: hidden;
 `;

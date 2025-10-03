@@ -18,6 +18,12 @@ export const GlobalStyle = createGlobalStyle`
         box-sizing: border-box;
     }
 
+     html, body, #root {
+        height: 100%;
+        width: 100%;
+        overflow: hidden;
+    }
+
     body {
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
         background-color: var(--cor-fundo);

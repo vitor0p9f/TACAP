@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { mockVolunteers, Volunteer } from '../../mocks/volunteers';
-import { FileText, Clipboard, PencilSimple, Trash } from '@phosphor-icons/react';
+import { FileTextIcon, ClipboardIcon, PencilSimpleIcon, TrashIcon } from '@phosphor-icons/react';
 import * as S from './styles';
 
 export function VolunteerTable() {
     const [volunteers, setVolunteers] = useState<Volunteer[]>([]);
 
-    useEffect(() => {
+    useEffect(() => { //Poderá ser usado para buscar dados de uma API futuramente
         setVolunteers(mockVolunteers);
     }, []);
 
@@ -32,12 +32,12 @@ export function VolunteerTable() {
                                 <td>{volunteer.realizouAvaliacao ? 'Sim' : 'Não'}</td>
                                 <td className="actions-cell">
                                     {volunteer.realizouAvaliacao ? (
-                                        <button title="Ver avaliação"><FileText size={20} /></button>
+                                        <button title="Ver avaliação"><FileTextIcon size={20} /></button>
                                     ) : (
-                                        <button title="Realizar avaliação"><Clipboard size={20} /></button>
+                                        <button title="Realizar avaliação"><ClipboardIcon size={20} /></button>
                                     )}
-                                    <button title="Editar"><PencilSimple size={20} /></button>
-                                    <button title="Excluir"><Trash size={20} /></button>
+                                    <button title="Editar"><PencilSimpleIcon size={20} /></button>
+                                    <button title="Excluir"><TrashIcon size={20} /></button>
                                 </td>
                             </tr>
                         ))}

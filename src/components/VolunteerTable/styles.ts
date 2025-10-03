@@ -4,7 +4,7 @@ export const Container = styled.div`
   display: flex;
   flex-direction: column;
   flex-grow: 1;
-  overflow: hidden; // Evita que o wrapper cresça infinitamente
+  overflow: hidden;
 `;
 
 export const TableWrapper = styled.div`
@@ -13,7 +13,7 @@ export const TableWrapper = styled.div`
     border-radius: 12px;
     padding: 8px;
     flex-grow: 1;
-    overflow-y: auto; // Permite scroll apenas na tabela
+    overflow-y: auto;
 
     table {
         width: 100%;
@@ -57,10 +57,11 @@ export const TableWrapper = styled.div`
 `;
 
 export const Footer = styled.footer`
-    padding-top: 24px; // Trocamos margin por padding
+    padding-top: 24px;
     display: flex;
     justify-content: center;
-
+    flex-shrink: 0;
+    
     .add-button {
         background-color: var(--cor-verde);
         color: white;
