@@ -1,0 +1,120 @@
+.modal {
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    padding: 0;
+    max-width: 95vw;
+    max-height: 95vh;
+    width: min(900px, 90vw); /* Usa o menor entre 900px e 90% da tela */
+    height: fit-content;
+    overflow: hidden;
+  }
+  
+  .modal::backdrop {
+    background: rgba(0, 0, 0, 0.5);
+  }
+  
+  .modalContent {
+    padding: clamp(16px, 4vw, 24px);
+    display: flex;
+    flex-direction: column;
+    gap: clamp(12px, 3vw, 20px);
+    height: fit-content;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 16px;
+  }
+  
+  .headerTitleContainer {
+    width: 100%;
+    text-align: center;
+    padding-left: 30px;
+  }
+  
+  .header h2 {
+    margin: 0;
+    font-size: 2.2rem;
+    color: #333;
+  }
+  
+  .headerDate {
+      margin: 4px 0 0 0;
+      font-size: 1rem;
+      color: #888;
+  }
+  
+  .closeButton {
+    background: none;
+    border: none;
+    font-size: 2rem;
+    cursor: pointer;
+    color: #888;
+    line-height: 1;
+  }
+  
+  .userInfo {
+    text-align: center;
+    padding: 16px 0;
+  }
+  
+  .userName {
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin: 0 0 8px 0; /* Remove margem padrão e adiciona embaixo */
+  }
+  
+  .userDetails {
+    font-size: 1.1rem;
+    color: #666;
+    margin: 0;
+  }
+  
+  .chartContainer {
+    position: relative;
+    height: clamp(300px, 40vh, 500px);
+    min-height: 300px; /* Altura mínima para garantir legibilidade */
+  }
+  
+  .footer {
+    display: flex;
+    justify-content: center;
+    padding-top: clamp(8px, 2vw, 16px);
+    border-top: 1px solid #eee;
+    margin-top: auto; /* Empurra o footer para baixo */
+  }
+  
+  .exportButton {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 5px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .exportButton:hover {
+    background-color: #218838;
+  }
+  
+  @media (max-width: 768px) {
+    .modal {
+      width: 95vw; /* Em telas pequenas, usa quase toda a largura */
+      max-width: 95vw;
+    }
+    
+    /* A regra antiga para .userInfo em mobile foi removida pois não é mais necessária */
+    
+    .chartContainer {
+      height: clamp(250px, 35vh, 400px); /* Altura menor em mobile */
+    }
+  }
