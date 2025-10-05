@@ -1,0 +1,91 @@
+/* Modal um pouco menor que o ResumoFisico para melhor visualização do gráfico radar */
+.modal {
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  padding: 0;
+  max-width: 95vw;
+  max-height: 95vh;
+  width: min(650px, 85vw); /* Usa o menor entre 650px e 85% da tela */
+  height: fit-content;
+}
+
+.modal::backdrop {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.modalContent {
+  padding: clamp(16px, 4vw, 24px);
+  display: flex;
+  flex-direction: column;
+  gap: clamp(12px, 3vw, 20px);
+  height: fit-content;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 16px;
+}
+
+.header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #333;
+  width: 100%;
+  text-align: center;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  cursor: pointer;
+  color: #888;
+  line-height: 1;
+}
+
+.chartContainer {
+  position: relative;
+  height: clamp(350px, 45vh, 500px);
+  min-height: 350px; /* Altura mínima para garantir legibilidade */
+}
+
+.footer {
+  display: flex;
+  justify-content: center;
+  padding-top: clamp(8px, 2vw, 16px);
+  border-top: 1px solid #eee;
+  margin-top: auto; /* Empurra o footer para baixo */
+}
+
+.exportButton {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 5px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.exportButton:hover {
+  background-color: #218838;
+}
+
+@media (max-width: 768px) {
+  .modal {
+    width: 95vw; /* Em telas pequenas, usa quase toda a largura */
+    max-width: 95vw;
+  }
+  
+  .chartContainer {
+    height: clamp(300px, 40vh, 450px); /* Altura menor em mobile */
+  }
+}
