@@ -1,11 +1,37 @@
-import { useState } from "react";
+import React from 'react';
+import styled from 'styled-components';
+import { GlobalStyle } from './styles/global';
+import { TopBar } from './components/TopBar';
+import { Sidebar } from './components/Sidebar';
+import { VolunteersPage } from './pages/VolunteersPage';
 
-export default function App() {
+const AppContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  background-color: var(--cor-fundo);
+`;
 
+const MainContent = styled.div`
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+`;
 
-    return (
-        <div style={{ padding: 20, fontFamily: "sans-serif" }}>
-          HELLO, world!
-        </div>
-    );
+function App() {
+  return (
+    <>
+      <GlobalStyle />
+      <AppContainer>
+        <TopBar />
+        <MainContent>
+          <Sidebar />
+          <VolunteersPage />
+        </MainContent>
+      </AppContainer>
+    </>
+  );
 }
+
+export default App;
