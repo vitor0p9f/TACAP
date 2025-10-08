@@ -22,7 +22,6 @@ export function VolunteerTable() {
         setModal('delete');
     };
 
-    
     const handleConfirmDelete = () => {
         if (selectedVolunteer) {
             console.log('Deletando voluntário:', selectedVolunteer.apelido);
@@ -61,7 +60,7 @@ export function VolunteerTable() {
                             <th>Graduação</th>
                             <th>Tempo de prática</th>
                             <th>Realizou avaliação</th>
-                            <th>Ações</th>
+                            <th className="actions-header">Ações</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -73,15 +72,19 @@ export function VolunteerTable() {
                                 <td>{volunteer.realizouAvaliacao ? 'Sim' : 'Não'}</td>
                                 <td className="actions-cell">
                                     {volunteer.realizouAvaliacao ? (
-                                        <button title="Ver avaliação"><FileTextIcon size={20} /></button>
+                                        <button title="Ver avaliação" aria-label={`Ver avaliação ${volunteer.apelido}`}>
+                                            <FileTextIcon size={18} />
+                                        </button>
                                     ) : (
-                                        <button title="Realizar avaliação" onClick={() => handleOpenAssessmentModal(volunteer)}>
-                                            <ClipboardIcon size={20} />
+                                        <button title="Realizar avaliação" aria-label={`Realizar avaliação ${volunteer.apelido}`} onClick={() => handleOpenAssessmentModal(volunteer)}>
+                                            <ClipboardIcon size={18} />
                                         </button>
                                     )}
-                                    <button title="Editar"><PencilSimpleIcon size={20} /></button>
-                                    <button title="Excluir" onClick={() => handleOpenDeleteModal(volunteer)}>
-                                        <TrashIcon size={20} />
+                                    <button title="Editar" aria-label={`Editar ${volunteer.apelido}`}>
+                                        <PencilSimpleIcon size={18} />
+                                    </button>
+                                    <button title="Excluir" aria-label={`Excluir ${volunteer.apelido}`} onClick={() => handleOpenDeleteModal(volunteer)}>
+                                        <TrashIcon size={18} />
                                     </button>
                                 </td>
                             </tr>
