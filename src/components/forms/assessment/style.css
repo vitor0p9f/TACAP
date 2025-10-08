@@ -1,6 +1,21 @@
-form {
-    height: 100%;
+/* Container principal do formulário */
+.assessment-form {
     display: flex;
     flex-direction: column;
-    gap: 1.25rem;
-}
+    gap: 16px; /* Espaçamento entre as linhas de inputs */
+    width: 100%;
+  }
+  
+  /* Layout em grid para os campos de input */
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Cria duas colunas de tamanho igual */
+    gap: 24px 16px; /* 24px de espaço vertical, 16px de espaço horizontal */
+  }
+  
+  /* Container para o botão, para facilitar a centralização */
+  .button-container {
+    display: flex;
+    justify-content: center; /* Centraliza o botão horizontalmente */
+    margin-top: 16px; /* Espaço acima do botão */
+  }
