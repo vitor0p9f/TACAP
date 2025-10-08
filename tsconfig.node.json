@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "composite": true,
     "outDir": "electron/dist",
     "module": "CommonJS",
     "moduleResolution": "Node",
