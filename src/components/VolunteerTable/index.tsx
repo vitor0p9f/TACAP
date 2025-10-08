@@ -2,13 +2,54 @@ import React, { useState, useEffect } from 'react';
 import { mockVolunteers, Volunteer } from '../../mocks/volunteers';
 import { FileTextIcon, ClipboardIcon, PencilSimpleIcon, TrashIcon } from '@phosphor-icons/react';
 import * as S from './styles';
+import { ConfirmDeleteModal } from '../modals/ConfirmDeleteModal';
+import { SuccessModal } from '../modals/SuccessModal';
+import { AssessmentModal } from '../modals/AssessmentModal';
 
 export function VolunteerTable() {
     const [volunteers, setVolunteers] = useState<Volunteer[]>([]);
 
+    const [modal, setModal] = useState<'delete' | 'success' | 'assessment' | null>(null);
+    const [selectedVolunteer, setSelectedVolunteer] = useState<Volunteer | null>(null);
+    const [successMessage, setSuccessMessage] = useState('');
+
     useEffect(() => { //Poderá ser usado para buscar dados de uma API futuramente
         setVolunteers(mockVolunteers);
     }, []);
+
+     const handleOpenDeleteModal = (volunteer: Volunteer) => {
+        setSelectedVolunteer(volunteer);
+        setModal('delete');
+    };
+
+    
+    const handleConfirmDelete = () => {
+        if (selectedVolunteer) {
+            console.log('Deletando voluntário:', selectedVolunteer.apelido);
+            // Aqui adicionar a remoção do voluntário da lista com uma chamada a API
+            setVolunteers(volunteers.filter(v => v.id !== selectedVolunteer.id));
+            setSuccessMessage('Voluntário deletado com sucesso!');
+            setModal('success');
+        }
+    };
+
+    const handleOpenAssessmentModal = (volunteer: Volunteer) => {
+        setSelectedVolunteer(volunteer);
+        setModal('assessment');
+    };
+
+    const handleAssessmentSubmit = (data: any) => {
+        console.log('Dados da avaliação:', data);
+        console.log('Para o voluntário:', selectedVolunteer?.apelido);
+        // Aqui adicionar a chamada de API para salvar a avaliação
+        setSuccessMessage('Voluntário avaliado com sucesso!');
+        setModal('success');
+    };
+
+    const closeModal = () => {
+        setModal(null);
+        setSelectedVolunteer(null);
+    };
 
     return (
         <S.Container>
@@ -34,10 +75,14 @@ export function VolunteerTable() {
                                     {volunteer.realizouAvaliacao ? (
                                         <button title="Ver avaliação"><FileTextIcon size={20} /></button>
                                     ) : (
-                                        <button title="Realizar avaliação"><ClipboardIcon size={20} /></button>
+                                        <button title="Realizar avaliação" onClick={() => handleOpenAssessmentModal(volunteer)}>
+                                            <ClipboardIcon size={20} />
+                                        </button>
                                     )}
                                     <button title="Editar"><PencilSimpleIcon size={20} /></button>
-                                    <button title="Excluir"><TrashIcon size={20} /></button>
+                                    <button title="Excluir" onClick={() => handleOpenDeleteModal(volunteer)}>
+                                        <TrashIcon size={20} />
+                                    </button>
                                 </td>
                             </tr>
                         ))}
@@ -48,6 +93,22 @@ export function VolunteerTable() {
             <S.Footer>
                 <button className="add-button">Adicionar</button>
             </S.Footer>
+            
+            <ConfirmDeleteModal
+                isOpen={modal === 'delete'}
+                onClose={closeModal}
+                onConfirm={handleConfirmDelete}
+            />
+            <SuccessModal
+                isOpen={modal === 'success'}
+                onClose={closeModal}
+                message={successMessage}
+            />
+            <AssessmentModal
+                isOpen={modal === 'assessment'}
+                onClose={closeModal}
+                onSubmit={handleAssessmentSubmit}
+            />
         </S.Container>
     );
 }

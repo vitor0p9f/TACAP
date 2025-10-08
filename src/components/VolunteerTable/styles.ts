@@ -16,14 +16,26 @@ export const TableWrapper = styled.div`
     overflow-y: auto;
 
     table {
-        width: 100%;
         border-collapse: collapse;
+        margin: 0 auto; 
     }
 
     th, td {
-        padding: 16px 24px;
-        text-align: left;
+        padding: 16px;
+        text-align: center;
+        vertical-align: middle;
         border-bottom: 1px solid var(--cor-borda);
+    }
+
+    th:first-child,
+    td:first-child {
+        text-align: left; 
+    }
+
+    th:last-child,
+    td:last-child {
+        width: 1%; 
+        white-space: nowrap;
     }
 
     thead th {
@@ -40,8 +52,8 @@ export const TableWrapper = styled.div`
 
     .actions-cell {
         display: flex;
-        align-items: center;
-        gap: 16px;
+        justify-content: center;
+        gap: 5px; 
 
         button {
             background: none;
