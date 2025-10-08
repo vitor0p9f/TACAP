@@ -25,20 +25,30 @@ export class DbProvider {
     static run(sql: string, params?: any): RunResult {
         const db = this.getDatabase();
         const stmt = db.prepare(sql);
-        const result = stmt.run(params);
+        const result = this.executeWithParams<Database.RunResult>(stmt.run.bind(stmt), params);
         return { lastID: result.lastInsertRowid as number, changes: result.changes };
     }
 
     static get<T = any>(sql: string, params?: any): T | undefined {
         const db = this.getDatabase();
         const stmt = db.prepare(sql);
-        return stmt.get(params) as T | undefined;
+        return this.executeWithParams<T | undefined>(stmt.get.bind(stmt), params);
     }
 
     static all<T = any>(sql: string, params?: any): T[] {
         const db = this.getDatabase();
         const stmt = db.prepare(sql);
-        return stmt.all(params) as T[];
+        return this.executeWithParams<T[]>(stmt.all.bind(stmt), params);
+    }
+
+    private static executeWithParams<T>(executor: (...args: any[]) => T, params?: any): T {
+        if (params === undefined || params === null) {
+            return executor();
+        }
+        if (Array.isArray(params)) {
+            return executor(...params);
+        }
+        return executor(params);
     }
 
     private static applyMigrations(db: Database.Database): void {
@@ -76,5 +86,6 @@ export class DbProvider {
         db.exec(sql);
     }
 }
+
 
 
