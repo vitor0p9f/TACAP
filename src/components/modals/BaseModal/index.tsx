@@ -2,26 +2,32 @@ import React from 'react';
 import { X } from '@phosphor-icons/react';
 import * as S from './styles';
 
-interface BaseModalProps {
+interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
-  children: React.ReactNode; // Conteúdo a ser exibido dentro do modal
+  children: React.ReactNode;
+  title?: string;
+  size?: 'small' | 'large';
 }
 
-export function BaseModal({ isOpen, onClose, children }: BaseModalProps) {
+export function Modal({ isOpen, onClose, children, title , size = 'small'}: ModalProps) {
   if (!isOpen) {
     return null;
   }
 
-  // e.stopPropagation() para evitar que o clique no modal feche-o
   return (
     <S.Overlay onClick={onClose}>
-      <S.ModalContent onClick={(e) => e.stopPropagation()}>
-        <S.CloseButton onClick={onClose}>
-          <X size={20} />
-        </S.CloseButton>
-        {children}
-      </S.ModalContent>
+      <S.ModalContainer size={size} onClick={(e) => e.stopPropagation()}>
+        <S.Header>
+          {title && <S.Title>{title}</S.Title>}
+          <S.CloseButton onClick={onClose}>
+            <X size={24} />
+          </S.CloseButton>
+        </S.Header>
+        <S.Content>
+          {children}
+        </S.Content>
+      </S.ModalContainer>
     </S.Overlay>
   );
 }

@@ -1,19 +1,20 @@
 import React from 'react';
-import { BaseModal } from '../BaseModal';
+import { Modal } from '../BaseModal';
 import * as S from './styles';
 
 interface SuccessModalProps {
   isOpen: boolean;
   onClose: () => void;
+  message: string;
 }
 
-export function SuccessModal({ isOpen, onClose }: SuccessModalProps) {
+export function SuccessModal({ isOpen, onClose, message }: SuccessModalProps) {
   return (
-    <BaseModal isOpen={isOpen} onClose={onClose}>
+    <Modal isOpen={isOpen} onClose={onClose}>
       <S.Container>
-        <S.Title>Voluntário cadastrado com sucesso!</S.Title>
-        <S.ContinueButton onClick={onClose}>CONTINUAR</S.ContinueButton>
+        <S.Message>{message}</S.Message>
+        <S.ContinueButton onClick={onClose}>Continuar</S.ContinueButton>
       </S.Container>
-    </BaseModal>
+    </Modal>
   );
 }
