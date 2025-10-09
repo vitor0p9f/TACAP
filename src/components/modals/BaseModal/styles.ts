@@ -58,6 +58,7 @@ export const CloseButton = styled.button`
   position: absolute;
   top: 0;
   right: 0;
+  padding: 0;
   
   &:hover {
     color: var(--cor-texto-principal);
