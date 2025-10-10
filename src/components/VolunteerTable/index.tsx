@@ -6,7 +6,11 @@ import { ConfirmDeleteModal } from '../modals/ConfirmDeleteModal';
 import { SuccessModal } from '../modals/SuccessModal';
 import { AssessmentModal } from '../modals/AssessmentModal';
 
-export function VolunteerTable() {
+interface VolunteersTableProps {
+    setCurrentPage: (page: string) => void
+}
+
+export function VolunteerTable({setCurrentPage}:VolunteersTableProps) {
     const [volunteers, setVolunteers] = useState<Volunteer[]>([]);
 
     const [modal, setModal] = useState<'delete' | 'success' | 'assessment' | null>(null);
@@ -94,7 +98,7 @@ export function VolunteerTable() {
             </S.TableWrapper>
 
             <S.Footer>
-                <button className="add-button">Adicionar</button>
+                <button className="add-button" onClick={() => setCurrentPage("Registration")}>Adicionar</button>
             </S.Footer>
             
             <ConfirmDeleteModal

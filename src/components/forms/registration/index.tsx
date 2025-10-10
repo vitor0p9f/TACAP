@@ -16,7 +16,11 @@ const phoneMask = (value: string) => {
     return value;
 }
 
-const RegistrationForm: React.FC = () => {
+interface RegistrationFormProps {
+    setCurrentPage: (page: string) => void
+}
+
+const RegistrationForm: React.FC<RegistrationFormProps> = ({setCurrentPage}) => {
     const [formData, setFormData] = useState({
         name: "",
         nickname: "",
@@ -265,7 +269,7 @@ const RegistrationForm: React.FC = () => {
                 />
             </div>
             <div className="Line">
-                <Button>Voltar</Button>
+                <Button onClick={()=> setCurrentPage("Volunteers")}>Voltar</Button>
                 <Button variant="success">Cadastrar</Button>
             </div>
         </form>

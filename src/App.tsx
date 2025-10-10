@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { GlobalStyle } from './styles/global';
 import { TopBar } from './components/TopBar';
 import { Sidebar } from './components/Sidebar';
 import { VolunteersPage } from './pages/VolunteersPage';
+import RegistrationForm from './components/forms/registration';
 
 const AppContainer = styled.div`
   display: flex;
@@ -20,6 +21,8 @@ const MainContent = styled.div`
 `;
 
 function App() {
+  const [currentPage, setCurrentPage] = useState('Volunteers')
+
   return (
     <>
       <GlobalStyle />
@@ -27,7 +30,8 @@ function App() {
         <TopBar />
         <MainContent>
           <Sidebar />
-          <VolunteersPage />
+          {currentPage === "Volunteers" && <VolunteersPage setCurrentPage={setCurrentPage}/>}
+          {currentPage === "Registration" && <RegistrationForm setCurrentPage={setCurrentPage}/>}
         </MainContent>
       </AppContainer>
     </>
