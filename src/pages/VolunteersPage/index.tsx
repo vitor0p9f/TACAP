@@ -3,11 +3,15 @@ import { Header } from '../../components/Header';
 import { VolunteerTable } from '../../components/VolunteerTable';
 import * as S from './styles';
 
-export function VolunteersPage() {
+interface VolunteersPageProps {
+    setCurrentPage: (page: string) => void
+}
+
+export function VolunteersPage({setCurrentPage}:VolunteersPageProps) {
     return (
         <S.Container>
             <Header />
-            <VolunteerTable /> {}
+            <VolunteerTable setCurrentPage={setCurrentPage}/> {}
         </S.Container>
     );
 }
