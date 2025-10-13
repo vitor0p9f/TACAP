@@ -42,7 +42,8 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({setCurrentPage}) => 
         contact: {
             cellphone: "",
             email: ""
-        }
+        },
+        documento_id: "1"
     })
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [modalMessage, setModalMessage] = useState("")
