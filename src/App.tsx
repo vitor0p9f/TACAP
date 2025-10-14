@@ -24,9 +24,10 @@ const MainContent = styled.div`
 
 function App() {
   const [currentPage, setCurrentPage] = useState('Volunteers');
+
+  // State e handlers para controlar os modais de gráfico.
   const [isResumoFisicoOpen, setIsResumoFisicoOpen] = useState(false);
   const [isResultadoAvaliacaoOpen, setIsResultadoAvaliacaoOpen] = useState(false);
-
   const handleOpenResumoFisico = () => setIsResumoFisicoOpen(true);
   const handleCloseResumoFisico = () => setIsResumoFisicoOpen(false);
   const handleOpenResultadoAvaliacao = () => setIsResultadoAvaliacaoOpen(true);
@@ -40,6 +41,7 @@ function App() {
         <MainContent>
           <Sidebar />
           {currentPage === "Volunteers" && 
+            // Passa as funções para a VolunteersPage conseguir abrir os modais.
             <VolunteersPage 
               setCurrentPage={setCurrentPage}
               openResumoFisico={handleOpenResumoFisico}
@@ -50,6 +52,7 @@ function App() {
         </MainContent>
       </AppContainer>
       
+      {/* Renderiza os modais aqui para que possam ser abertos por qualquer página. */}
       <ResumoFisico 
           isOpen={isResumoFisicoOpen} 
           onClose={handleCloseResumoFisico} 

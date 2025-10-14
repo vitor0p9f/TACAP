@@ -9,11 +9,12 @@ interface VolunteersPageProps {
     openResultadoAvaliacao: () => void;
 }
 
+// As props `openResumoFisico` e `openResultadoAvaliacao` vêm do App.tsx.
+// Elas podem ser usadas no `onClick` de um botão para abrir os modais.
 export function VolunteersPage({setCurrentPage, openResumoFisico, openResultadoAvaliacao}:VolunteersPageProps) {
     return (
         <S.Container>
             <Header />
-            {/* Aqui seria um bom lugar para adicionar os botões de teste no futuro */}
             <VolunteerTable setCurrentPage={setCurrentPage}/>
         </S.Container>
     );
