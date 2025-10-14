@@ -4,14 +4,18 @@ import { VolunteerTable } from '../../components/VolunteerTable';
 import * as S from './styles';
 
 interface VolunteersPageProps {
-    setCurrentPage: (page: string) => void
+    setCurrentPage: (page: string) => void;
+    openResumoFisico: () => void;
+    openResultadoAvaliacao: () => void;
 }
 
-export function VolunteersPage({setCurrentPage}:VolunteersPageProps) {
+// As props `openResumoFisico` e `openResultadoAvaliacao` vêm do App.tsx.
+// Elas podem ser usadas no `onClick` de um botão para abrir os modais.
+export function VolunteersPage({setCurrentPage, openResumoFisico, openResultadoAvaliacao}:VolunteersPageProps) {
     return (
         <S.Container>
             <Header />
-            <VolunteerTable setCurrentPage={setCurrentPage}/> {}
+            <VolunteerTable setCurrentPage={setCurrentPage}/>
         </S.Container>
     );
 }
