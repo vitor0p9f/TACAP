@@ -27,7 +27,6 @@ function App() {
   const [isResumoFisicoOpen, setIsResumoFisicoOpen] = useState(false);
   const [isResultadoAvaliacaoOpen, setIsResultadoAvaliacaoOpen] = useState(false);
 
-  // Funções para controlar os modais, prontas para serem usadas no futuro
   const handleOpenResumoFisico = () => setIsResumoFisicoOpen(true);
   const handleCloseResumoFisico = () => setIsResumoFisicoOpen(false);
   const handleOpenResultadoAvaliacao = () => setIsResultadoAvaliacaoOpen(true);
@@ -43,17 +42,14 @@ function App() {
           {currentPage === "Volunteers" && 
             <VolunteersPage 
               setCurrentPage={setCurrentPage}
-              // As funções estão prontas para serem passadas para qualquer
-              // componente que precise chamar os modais.
-              // openResumoFisico={handleOpenResumoFisico}
-              // openResultadoAvaliacao={handleOpenResultadoAvaliacao}
+              openResumoFisico={handleOpenResumoFisico}
+              openResultadoAvaliacao={handleOpenResultadoAvaliacao}
             />
           }
           {currentPage === "Registration" && <RegistrationForm setCurrentPage={setCurrentPage}/>}
         </MainContent>
       </AppContainer>
       
-      {/* Seus componentes de modal existem na aplicação, mas começam invisíveis */}
       <ResumoFisico 
           isOpen={isResumoFisicoOpen} 
           onClose={handleCloseResumoFisico} 

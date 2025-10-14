@@ -4,14 +4,17 @@ import { VolunteerTable } from '../../components/VolunteerTable';
 import * as S from './styles';
 
 interface VolunteersPageProps {
-    setCurrentPage: (page: string) => void
+    setCurrentPage: (page: string) => void;
+    openResumoFisico: () => void;
+    openResultadoAvaliacao: () => void;
 }
 
-export function VolunteersPage({setCurrentPage}:VolunteersPageProps) {
+export function VolunteersPage({setCurrentPage, openResumoFisico, openResultadoAvaliacao}:VolunteersPageProps) {
     return (
         <S.Container>
             <Header />
-            <VolunteerTable setCurrentPage={setCurrentPage}/> {}
+            {/* Aqui seria um bom lugar para adicionar os botões de teste no futuro */}
+            <VolunteerTable setCurrentPage={setCurrentPage}/>
         </S.Container>
     );
 }
