@@ -5,9 +5,10 @@ import * as S from './styles';
 import { ConfirmDeleteModal } from '../modals/ConfirmDeleteModal';
 import { SuccessModal } from '../modals/SuccessModal';
 import { AssessmentModal } from '../modals/AssessmentModal';
+import { Pages } from '../../types/pages';
 
 interface VolunteersTableProps {
-    setCurrentPage: (page: string) => void
+    setCurrentPage: (page: Pages) => void
 }
 
 export function VolunteerTable({setCurrentPage}:VolunteersTableProps) {
