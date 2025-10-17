@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "composite": true,
-    "outDir": "electron/dist",
+    "outDir": "electron_out",
     "module": "CommonJS",
     "moduleResolution": "Node",
     "target": "ES2020",
