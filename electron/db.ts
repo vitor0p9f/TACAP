@@ -5,54 +5,69 @@ import Database from "better-sqlite3";
 export type RunResult = { lastID: number; changes: number };
 
 export class DbProvider {
-    private static instance: Database.Database | null = null;
+  private static instance: Database.Database | null = null;
 
-    private static open(): Database.Database {
-        const userDataDir = app.getPath("userData");
-        const dbPath = path.join(userDataDir, "tacap.db");
-        const db = new Database(dbPath);
-        this.applyMigrations(db);
-        return db;
+  private static open(): Database.Database {
+    const userDataDir = app.getPath("userData");
+    const dbPath = path.join(userDataDir, "tacap.db");
+    const db = new Database(dbPath);
+    this.applyMigrations(db);
+    return db;
+  }
+
+  static getDatabase(): Database.Database {
+    if (!this.instance) {
+      this.instance = this.open();
     }
+    return this.instance!;
+  }
 
-    static getDatabase(): Database.Database {
-        if (!this.instance) {
-            this.instance = this.open();
-        }
-        return this.instance!;
+  static run(sql: string, params?: any): RunResult {
+    const db = this.getDatabase();
+    const stmt = db.prepare(sql);
+    const result = this.executeWithParams<Database.RunResult>(
+      stmt.run.bind(stmt),
+      params
+    );
+    return {
+      lastID: result.lastInsertRowid as number,
+      changes: result.changes,
+    };
+  }
+
+  static get<T = any>(sql: string, params?: any): T | undefined {
+    const db = this.getDatabase();
+    const stmt = db.prepare(sql);
+    return this.executeWithParams<T | undefined>(
+      stmt.get.bind(stmt) as (...args: any[]) => T | undefined,
+      params
+    );
+  }
+
+  static all<T = any>(sql: string, params?: any): T[] {
+    const db = this.getDatabase();
+    const stmt = db.prepare(sql);
+    return this.executeWithParams<T[]>(
+      stmt.all.bind(stmt) as (...args: any[]) => T[],
+      params
+    );
+  }
+
+  private static executeWithParams<T>(
+    executor: (...args: any[]) => T,
+    params?: any
+  ): T {
+    if (params === undefined || params === null) {
+      return executor();
     }
-
-    static run(sql: string, params?: any): RunResult {
-        const db = this.getDatabase();
-        const stmt = db.prepare(sql);
-        const result = this.executeWithParams<Database.RunResult>(stmt.run.bind(stmt), params);
-        return { lastID: result.lastInsertRowid as number, changes: result.changes };
+    if (Array.isArray(params)) {
+      return executor(...params);
     }
+    return executor(params);
+  }
 
-    static get<T = any>(sql: string, params?: any): T | undefined {
-        const db = this.getDatabase();
-        const stmt = db.prepare(sql);
-        return this.executeWithParams<T | undefined>(stmt.get.bind(stmt), params);
-    }
-
-    static all<T = any>(sql: string, params?: any): T[] {
-        const db = this.getDatabase();
-        const stmt = db.prepare(sql);
-        return this.executeWithParams<T[]>(stmt.all.bind(stmt), params);
-    }
-
-    private static executeWithParams<T>(executor: (...args: any[]) => T, params?: any): T {
-        if (params === undefined || params === null) {
-            return executor();
-        }
-        if (Array.isArray(params)) {
-            return executor(...params);
-        }
-        return executor(params);
-    }
-
-    private static applyMigrations(db: Database.Database): void {
-        const sql = `
+  private static applyMigrations(db: Database.Database): void {
+    const sql = `
             PRAGMA journal_mode = WAL;
             CREATE TABLE IF NOT EXISTS voluntarios (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -83,9 +98,6 @@ export class DbProvider {
                 FOREIGN KEY(voluntario_id) REFERENCES voluntarios(id) ON DELETE CASCADE
             );
         `;
-        db.exec(sql);
-    }
+    db.exec(sql);
+  }
 }
-
-
-
