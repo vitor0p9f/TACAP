@@ -11,7 +11,8 @@
     "build:vite": "vite build",
     "build:electron": "npx tsc -p tsconfig.node.json && npx electron-builder --publish=never",
     "build": "npm run build:vite && npm run build:electron",
-    "start": "dist_electron\\\"TACAP Setup 1.0.0.exe\""
+    "start": "dist_electron\\\"TACAP Setup 1.0.0.exe\"",
+    "postinstall": "electron-rebuild"
   },
   "private": true,
   "author": "",
@@ -36,6 +37,7 @@
     }
   },
   "devDependencies": {
+    "@faker-js/faker": "^10.1.0",
     "@types/node": "^24.5.2",
     "@types/react": "^19.1.13",
     "@types/react-dom": "^19.1.9",
@@ -45,6 +47,7 @@
     "cross-env": "^10.0.0",
     "electron": "^38.1.2",
     "electron-builder": "^24.6.0",
+    "electron-rebuild": "^3.2.9",
     "ts-node": "^10.9.2",
     "tsx": "^4.20.5",
     "typescript": "^5.9.2",
@@ -58,12 +61,12 @@
     "@types/better-sqlite3": "^7.6.13",
     "@vitejs/plugin-react": "^5.0.3",
     "better-sqlite3": "^12.4.1",
+    "chart.js": "^4.4.3",
     "lucide-react": "^0.544.0",
     "react": "^19.1.1",
+    "react-chartjs-2": "^5.2.0",
     "react-dom": "^19.1.1",
     "react-hook-form": "^7.64.0",
-    "styled-components": "^6.1.19",
-    "chart.js": "^4.4.3",
-    "react-chartjs-2": "^5.2.0"
+    "styled-components": "^6.1.19"
   }
 }
