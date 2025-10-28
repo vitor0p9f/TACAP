@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { mockVolunteers, Volunteer } from '../../mocks/volunteers';
+import React, { useState } from 'react';
+import { Volunteer } from '../../services/voluntarioClient';
 import { FileTextIcon, ClipboardIcon, PencilSimpleIcon, TrashIcon } from '@phosphor-icons/react';
 import * as S from './styles';
 import { ConfirmDeleteModal } from '../modals/ConfirmDeleteModal';
@@ -7,21 +7,17 @@ import { SuccessModal } from '../modals/SuccessModal';
 import { AssessmentModal } from '../modals/AssessmentModal';
 
 interface VolunteersTableProps {
-    setCurrentPage: (page: string) => void
+    volunteers: Volunteer[];
+    setVolunteers: React.Dispatch<React.SetStateAction<Volunteer[]>>;
+    setCurrentPage: (page: string) => void;
 }
 
-export function VolunteerTable({setCurrentPage}:VolunteersTableProps) {
-    const [volunteers, setVolunteers] = useState<Volunteer[]>([]);
-
+export function VolunteerTable({ volunteers, setVolunteers, setCurrentPage }: VolunteersTableProps) {
     const [modal, setModal] = useState<'delete' | 'success' | 'assessment' | null>(null);
     const [selectedVolunteer, setSelectedVolunteer] = useState<Volunteer | null>(null);
     const [successMessage, setSuccessMessage] = useState('');
 
-    useEffect(() => { //Poderá ser usado para buscar dados de uma API futuramente
-        setVolunteers(mockVolunteers);
-    }, []);
-
-     const handleOpenDeleteModal = (volunteer: Volunteer) => {
+    const handleOpenDeleteModal = (volunteer: Volunteer) => {
         setSelectedVolunteer(volunteer);
         setModal('delete');
     };
@@ -29,8 +25,8 @@ export function VolunteerTable({setCurrentPage}:VolunteersTableProps) {
     const handleConfirmDelete = () => {
         if (selectedVolunteer) {
             console.log('Deletando voluntário:', selectedVolunteer.apelido);
-            // Aqui adicionar a remoção do voluntário da lista com uma chamada a API
-            setVolunteers(volunteers.filter(v => v.id !== selectedVolunteer.id));
+            // Atualiza a lista principal no componente pai
+            setVolunteers(prevVolunteers => prevVolunteers.filter(v => v.id !== selectedVolunteer.id));
             setSuccessMessage('Voluntário deletado com sucesso!');
             setModal('success');
         }
