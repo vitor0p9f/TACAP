@@ -1,3 +1,10 @@
+import { mockVolunteers } from '../mocks/volunteers';
+import type { Volunteer } from '../mocks/volunteers';
+
+// O client original (comunicação com Electron) foi comentado para usar dados mockados no desenvolvimento do filtro.
+// Para reativar a comunicação com o banco de dados, basta descomentar o código abaixo e remover a implementação mockada.
+
+/*
 export interface Voluntario {
   id?: number;
   nome: string;
@@ -34,4 +41,20 @@ export const voluntarioClient = {
   create: (data: UpsertPayload) => invoke<Voluntario>(CHANNELS.create, data),
   update: (id: number, data: UpsertPayload) => invoke<Voluntario>(CHANNELS.update, id, data),
   remove: (id: number) => invoke<void>(CHANNELS.remove, id),
+};
+*/
+
+// --- Implementação Mockada ---
+
+export type { Volunteer };
+
+export const voluntarioClient = {
+  list: (): Promise<Volunteer[]> => {
+    // Simula uma pequena demora de rede para uma experiência mais realista.
+    return new Promise(resolve => {
+      setTimeout(() => {
+        resolve(mockVolunteers);
+      }, 500);
+    });
+  },
 };
