@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 import { FileTextIcon, ClipboardIcon, PencilSimpleIcon, TrashIcon } from '@phosphor-icons/react';
 import * as S from './styles';
 import { ConfirmDeleteModal } from '../modals/ConfirmDeleteModal';
@@ -31,8 +31,8 @@ export function VolunteerTable({
         setVolunteers(fetchedVolunteers);
         setError(null);
       } catch (err) {
-        console.error("Erro ao buscar voluntários:", err);
-        setError("Não foi possível carregar os voluntários.");
+        console.error('Erro ao buscar voluntários:', err);
+        setError('Não foi possível carregar os voluntários.');
       } finally {
         setIsLoading(false);
       }
@@ -43,7 +43,7 @@ export function VolunteerTable({
 
   const handleOpenDeleteModal = (volunteer: Voluntario) => {
     setSelectedVolunteer(volunteer);
-    setModal("delete");
+    setModal('delete');
   };
 
   const handleConfirmDelete = async () => {
@@ -144,7 +144,7 @@ export function VolunteerTable({
       <S.Footer>
         <button
           className="add-button"
-          onClick={() => setCurrentPage("Registration")}
+          onClick={() => setCurrentPage('Registration')}
         >
           Adicionar
         </button>
