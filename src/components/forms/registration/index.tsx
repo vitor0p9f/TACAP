@@ -5,6 +5,7 @@ import Button from "../../button"
 import { Select } from "../../select"
 import { voluntarioClient } from "../../../services/voluntarioClient"
 import { SuccessModal } from "../../modals/SuccessModal"
+import { Pages } from "../../../types/pages"
 
 const phoneMask = (value: string) => {
     value = value.replace(/\D/g, ""); // Remove all digits
@@ -19,7 +20,7 @@ const phoneMask = (value: string) => {
 }
 
 interface RegistrationFormProps {
-    setCurrentPage: (page: string) => void
+    setCurrentPage: (page: Pages) => void
 }
 
 const RegistrationForm: React.FC<RegistrationFormProps> = ({setCurrentPage}) => {
