@@ -7,6 +7,8 @@ import { VolunteersPage } from './pages/VolunteersPage';
 import RegistrationForm from './components/forms/registration';
 import ResumoFisico from "./components/ResumoFisico";
 import ResultadoAvaliacao from "./components/ResultadoAvaliacao";
+import DashboardPage from './pages/DashboardPage';
+import { Pages } from './types/pages';
 
 const AppContainer = styled.div`
   display: flex;
@@ -23,7 +25,7 @@ const MainContent = styled.div`
 `;
 
 function App() {
-  const [currentPage, setCurrentPage] = useState('Volunteers');
+  const [currentPage, setCurrentPage] = useState<Pages>('Volunteers');
 
   // State e handlers para controlar os modais de gráfico.
   const [isResumoFisicoOpen, setIsResumoFisicoOpen] = useState(false);
@@ -39,16 +41,20 @@ function App() {
       <AppContainer>
         <TopBar />
         <MainContent>
-          <Sidebar />
+          <Sidebar
+            currentPage={currentPage}
+            setCurrentPage={setCurrentPage}
+          />
           {currentPage === "Volunteers" && 
             // Passa as funções para a VolunteersPage conseguir abrir os modais.
-            <VolunteersPage 
+            <VolunteersPage
               setCurrentPage={setCurrentPage}
               openResumoFisico={handleOpenResumoFisico}
               openResultadoAvaliacao={handleOpenResultadoAvaliacao}
             />
           }
           {currentPage === "Registration" && <RegistrationForm setCurrentPage={setCurrentPage}/>}
+          {currentPage === "Dashboard" && <DashboardPage/>}
         </MainContent>
       </AppContainer>
       

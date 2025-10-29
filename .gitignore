@@ -152,3 +152,4 @@ electron/tsconfig.app.json
 electron/tsconfig.spec.json
 dist_electron/
 dist/
+electron_out/

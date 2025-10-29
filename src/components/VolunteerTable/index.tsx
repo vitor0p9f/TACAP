@@ -5,14 +5,17 @@ import * as S from './styles';
 import { ConfirmDeleteModal } from '../modals/ConfirmDeleteModal';
 import { SuccessModal } from '../modals/SuccessModal';
 import { AssessmentModal } from '../modals/AssessmentModal';
+import { Pages } from '../../types/pages';
 
 interface VolunteersTableProps {
     volunteers: Volunteer[];
     setVolunteers: React.Dispatch<React.SetStateAction<Volunteer[]>>;
-    setCurrentPage: (page: string) => void;
+    setCurrentPage: (page: Pages) => void;
+    openResumoFisico: () => void;
+    openResultadoAvaliacao: () => void;
 }
 
-export function VolunteerTable({ volunteers, setVolunteers, setCurrentPage }: VolunteersTableProps) {
+export function VolunteerTable({ volunteers, setVolunteers, setCurrentPage, openResumoFisico, openResultadoAvaliacao }: VolunteersTableProps) {
     const [modal, setModal] = useState<'delete' | 'success' | 'assessment' | null>(null);
     const [selectedVolunteer, setSelectedVolunteer] = useState<Volunteer | null>(null);
     const [successMessage, setSuccessMessage] = useState('');
@@ -72,7 +75,7 @@ export function VolunteerTable({ volunteers, setVolunteers, setCurrentPage }: Vo
                                 <td>{volunteer.realizouAvaliacao ? 'Sim' : 'Não'}</td>
                                 <td className="actions-cell">
                                     {volunteer.realizouAvaliacao ? (
-                                        <button title="Ver avaliação" aria-label={`Ver avaliação ${volunteer.apelido}`}>
+                                        <button title="Ver avaliação" aria-label={`Ver avaliação ${volunteer.apelido}`} onClick={openResultadoAvaliacao}>
                                             <FileTextIcon size={18} />
                                         </button>
                                     ) : (
@@ -80,7 +83,7 @@ export function VolunteerTable({ volunteers, setVolunteers, setCurrentPage }: Vo
                                             <ClipboardIcon size={18} />
                                         </button>
                                     )}
-                                    <button title="Editar" aria-label={`Editar ${volunteer.apelido}`}>
+                                    <button title="Editar" aria-label={`Editar ${volunteer.apelido}`} onClick={openResumoFisico}>
                                         <PencilSimpleIcon size={18} />
                                     </button>
                                     <button title="Excluir" aria-label={`Excluir ${volunteer.apelido}`} onClick={() => handleOpenDeleteModal(volunteer)}>

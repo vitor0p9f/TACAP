@@ -3,9 +3,10 @@ import { Header } from '../../components/Header';
 import { VolunteerTable } from '../../components/VolunteerTable';
 import * as S from './styles';
 import { voluntarioClient, Volunteer } from '../../services/voluntarioClient';
+import { Pages } from '../../types/pages';
 
 interface VolunteersPageProps {
-    setCurrentPage: (page: string) => void;
+    setCurrentPage: (page: Pages) => void;
     openResumoFisico: () => void;
     openResultadoAvaliacao: () => void;
 }
@@ -31,7 +32,13 @@ export function VolunteersPage({setCurrentPage, openResumoFisico, openResultadoA
     return (
         <S.Container>
             <Header searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
-            <VolunteerTable volunteers={filteredVolunteers} setVolunteers={setVolunteers} setCurrentPage={setCurrentPage}/>
+            <VolunteerTable 
+                volunteers={filteredVolunteers} 
+                setVolunteers={setVolunteers} 
+                setCurrentPage={setCurrentPage}
+                openResumoFisico={openResumoFisico}
+                openResultadoAvaliacao={openResultadoAvaliacao}
+            />
         </S.Container>
     );
 }
