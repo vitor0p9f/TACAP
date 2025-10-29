@@ -14,7 +14,18 @@ export class VoluntarioService {
     }
 
     list(): Voluntario[] {
-        return DbProvider.all<Voluntario>(`SELECT * FROM voluntarios ORDER BY created_at DESC`);
+
+        const query = `
+            SELECT 
+                v.*,
+                CASE WHEN COUNT(a.id) > 0 THEN 1 ELSE 0 END as realizouAvaliacao
+            FROM voluntarios v
+            LEFT JOIN avaliacoes a ON v.id = a.voluntario_id
+            GROUP BY v.id
+            ORDER BY v.created_at DESC
+        `;
+
+        return DbProvider.all<Voluntario>(query);
     }
 
     getById(id: number): Voluntario | undefined {
