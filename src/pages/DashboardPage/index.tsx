@@ -26,21 +26,20 @@ function getTextValuePairByVariable(assessment: Avaliacao, variable: string){
   }
 }
 
-function calcularRegressaoLinear(data: any[]) {
-  const n = data.length;
-  const sumX = data.reduce((acc, p) => acc + p.x, 0);
-  const sumY = data.reduce((acc, p) => acc + p.y, 0);
-  const sumXY = data.reduce((acc, p) => acc + p.x * p.y, 0);
-  const sumX2 = data.reduce((acc, p) => acc + p.x * p.x, 0);
-
-  const a = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX); // inclinação
-  const b = (sumY - a * sumX) / n; // intercepto
-  return { a, b };
+function getMeanByVariable(means: any, variable: string): number | null {
+  switch (variable) {
+    case "iacap": return means?.iacap ?? null;
+    case "tacap_power": return means?.power ?? null;
+    case "rfc": return means?.rfc ?? null;
+    case "pse": return means?.pse ?? null;
+    default: return null;
+  }
 }
 
 const DashboardPage: React.FC = () => {
     const [currentShowingData, setCurrentShowingData] = useState("");
     const [chartPoints, setChartPoints] = useState<any[]>([]);
+    const [mean, setMean] = useState(0)
     const population = useContext(PopulationContext)
 
     useEffect(() => {
@@ -59,25 +58,20 @@ const DashboardPage: React.FC = () => {
           practice_time: v.tempo_pratica,
           label: pair[0],
         };
-      }).filter(Boolean);
+      }).filter(Boolean)
+      // 🔹 Reindexa os pontos após o filtro
+      .map((p, i) => ({
+        ...p,
+        x: i + 1,
+      }));
 
       setChartPoints(points as any[]);
-    }, [currentShowingData, population]);
 
-    const regressionLine = () => {
-      if (chartPoints.length === 0) return [];
-    
-      const { a, b } = calcularRegressaoLinear(chartPoints);
-    
-      // Descobre mínimo e máximo de X para cobrir todo o gráfico
-      const minX = Math.min(...chartPoints.map(p => p.x));
-      const maxX = Math.max(...chartPoints.map(p => p.x));
-    
-      return [
-        { x: minX, y: a * minX + b },
-        { x: maxX, y: a * maxX + b },
-      ];
-    };
+      console.log(points)
+      
+      const meanValue = getMeanByVariable(population.means, currentShowingData)
+      if (meanValue) setMean(meanValue) 
+    }, [currentShowingData, population]);
 
     const onSelectChangeHadler = (event: React.ChangeEvent<HTMLSelectElement>) => {
       const {name, value} = event.target
@@ -94,8 +88,11 @@ const DashboardPage: React.FC = () => {
           showLine: false,
         },
         {
-          label: 'Linha de Regressão',
-          data: regressionLine(),
+          label: 'Média da população',
+          data: [
+            { x: 0, y: mean },
+            { x: chartPoints.length + 1, y: mean },
+          ],
           borderColor: 'rgb(54, 162, 235)',
           borderWidth: 2,
           fill: false,
