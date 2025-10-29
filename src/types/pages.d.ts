@@ -1,0 +1,1 @@
+export type Pages = "Registration" | "Volunteers" | "Dashboard" 
