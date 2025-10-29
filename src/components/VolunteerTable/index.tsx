@@ -14,15 +14,12 @@ export function VolunteerTable({
   setCurrentPage,
   showSuccessMessage,
 }: VolunteersTableProps) {
-  type VolunteerWithStatus = Voluntario & { realizouAvaliacao: boolean };
-
-  const [volunteers, setVolunteers] = useState<VolunteerWithStatus[]>([]);
+  const [volunteers, setVolunteers] = useState<Voluntario[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const [modal, setModal] = useState<'delete' | 'assessment' | null>(null);
-  const [selectedVolunteer, setSelectedVolunteer] =
-    useState<VolunteerWithStatus | null>(null);
+  const [selectedVolunteer, setSelectedVolunteer] = useState<Voluntario | null>(null);
 
   useEffect(() => {
     const fetchVolunteers = async () => {
@@ -31,15 +28,7 @@ export function VolunteerTable({
           "voluntario:list"
         )) as Voluntario[];
 
-        // --- PONTO IMPORTANTE ---
-        // O backend não nos diz se a avaliação foi feita.
-        // Por enquanto, vamos simular isso. O ideal seria o backend já enviar essa informação.
-        const volunteersWithStatus = fetchedVolunteers.map((v) => ({
-          ...v,
-          realizouAvaliacao: false, // TODO: A lógica real precisa ser implementada
-        }));
-
-        setVolunteers(volunteersWithStatus);
+        setVolunteers(fetchedVolunteers);
         setError(null);
       } catch (err) {
         console.error('Erro ao buscar voluntários:', err);
@@ -52,7 +41,7 @@ export function VolunteerTable({
     fetchVolunteers();
   }, []);
 
-  const handleOpenDeleteModal = (volunteer: VolunteerWithStatus) => {
+  const handleOpenDeleteModal = (volunteer: Voluntario) => {
     setSelectedVolunteer(volunteer);
     setModal('delete');
   };
@@ -71,7 +60,7 @@ export function VolunteerTable({
     }
   };
 
-  const handleOpenAssessmentModal = (volunteer: VolunteerWithStatus) => {
+  const handleOpenAssessmentModal = (volunteer: Voluntario) => {
     setSelectedVolunteer(volunteer);
     setModal('assessment');
   };

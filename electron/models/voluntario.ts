@@ -11,4 +11,5 @@ export interface Voluntario {
     endereco?: string;
     contato?: string;
     created_at?: string; 
+    realizouAvaliacao?: boolean;
 }

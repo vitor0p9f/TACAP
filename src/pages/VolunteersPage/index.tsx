@@ -30,9 +30,39 @@ export function VolunteersPage({
     setIsSuccessModalOpen(false);
   };
 
+  const handleSeedDatabase = async () => {
+    if (
+      confirm(
+        "Isso irá apagar e recriar todos os dados de teste. Deseja continuar?"
+      )
+    ) {
+      try {
+        const result = (await window.api.invoke("database:seed")) as {
+          success: boolean;
+          message: string;
+        };
+        if (result.success) {
+          alert(result.message);
+          window.location.reload(); // Recarrega a página para ver os novos dados
+        } else {
+          alert(`Erro: ${result.message}`);
+        }
+      } catch (error) {
+        console.error("Erro ao chamar API de seed:", error);
+        alert("Ocorreu um erro inesperado. Verifique o console.");
+      }
+    }
+  };
+
   return (
     <S.Container>
-      <Header />
+      <Header onExportSuccess={showSuccessMessage} />
+
+      <div style={{ padding: "10px", background: "#fff" }}>
+        <button onClick={handleSeedDatabase}>
+          [DEV] Popular Banco com Dados Falsos
+        </button>
+      </div>
 
       <VolunteerTable
         setCurrentPage={setCurrentPage}
