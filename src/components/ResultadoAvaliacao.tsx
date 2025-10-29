@@ -122,15 +122,32 @@ const ResultadoAvaliacao: React.FC<ResultadoAvaliacaoProps> = ({ isOpen, onClose
           display: true,
         },
         suggestedMin: 0,
-        suggestedMax: 10, // Escala de 0-10 para normalizar todas as métricas
+        suggestedMax: 10,
         ticks: {
-          stepSize: 2 // Intervalos de 2 para melhor visualização
+          stepSize: 1,
+          font: {
+            size: 8,
+            family: 'Arial, sans-serif'
+          },
+          maxTicksLimit: 6
+        },
+        pointLabels: {
+          font: {
+            size: 10
+          }
         }
       },
     },
     plugins: {
       legend: {
         position: 'top' as const,
+        labels: {
+          font: {
+            size: 10,
+            family: 'Arial, sans-serif'
+          },
+          padding: 15
+        }
       },
     },
   };
