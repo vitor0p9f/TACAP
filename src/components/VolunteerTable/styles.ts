@@ -7,6 +7,10 @@ export const Container = styled.div`
   box-sizing: border-box;
   padding: 20px;
   font-family: Inter, 'Helvetica Neue', Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
 `;
 
 export const TableWrapper = styled.div`
@@ -15,7 +19,8 @@ export const TableWrapper = styled.div`
   box-shadow: 0 1px 0 rgba(0,0,0,0.03);
   border: 1px solid #e6eef2;
   overflow: auto;
-  max-height: calc(100vh - 200px);
+  flex: 1;
+  min-height: 0; /* permite que o flex container calcule altura corretamente */
 
   table {
     width: 100%;
