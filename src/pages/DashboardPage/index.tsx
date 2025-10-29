@@ -1,17 +1,10 @@
-import React, { useEffect, useMemo, useState } from "react"
+import React, { useContext, useEffect, useState } from "react"
 import styles from "./style.module.css"
 import { Scatter } from 'react-chartjs-2';
 import { Select } from "../../components/select";
 import { ChartOptions } from "chart.js";
-import { Voluntario, voluntarioClient } from "../../services/voluntarioClient";
 import { Avaliacao } from "../../../electron/models/avaliacao";
-import { avaliacaoClient } from "../../services/avaliacaoClient";
-
-async function getAllVolunteers(){
-  let volunteers = await voluntarioClient.list()
-  
-  return volunteers
-}
+import { PopulationContext } from "../../context/population";
 
 function getTextValuePairByVariable(assessment: Avaliacao, variable: string){
   
@@ -33,38 +26,30 @@ function getTextValuePairByVariable(assessment: Avaliacao, variable: string){
   }
 }
 
+function calcularRegressaoLinear(data: any[]) {
+  const n = data.length;
+  const sumX = data.reduce((acc, p) => acc + p.x, 0);
+  const sumY = data.reduce((acc, p) => acc + p.y, 0);
+  const sumXY = data.reduce((acc, p) => acc + p.x * p.y, 0);
+  const sumX2 = data.reduce((acc, p) => acc + p.x * p.x, 0);
+
+  const a = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX); // inclinação
+  const b = (sumY - a * sumX) / n; // intercepto
+  return { a, b };
+}
+
 const DashboardPage: React.FC = () => {
-    const [allVolunteers, setAllVolunteers] = useState<Voluntario[]>([]);
-    const [allEvaluations, setAllEvaluations] = useState<Record<number, Avaliacao>>({});
     const [currentShowingData, setCurrentShowingData] = useState("");
     const [chartPoints, setChartPoints] = useState<any[]>([]);
-
-    useEffect(() => {
-      (async () => {
-        const volunteers = await getAllVolunteers();
-        setAllVolunteers(volunteers);
-
-        const evals: Record<number, Avaliacao> = {};
-        await Promise.all(
-          volunteers.map(async (v) => {
-            if (v.id) {
-              const a = await avaliacaoClient.listByVoluntario(v.id);
-              if (a[0]) evals[v.id] = a[0];
-            }
-          })
-        );
-        setAllEvaluations(evals);
-      })();
-    }, []);
+    const population = useContext(PopulationContext)
 
     useEffect(() => {
       if (!currentShowingData) return;
-      console.log("Vou procurar")
 
-      const points = allVolunteers.map((v, index) => {
-        if (!v.id || !allEvaluations[v.id]) return null;
+      const points = population.all_volunteers.map((v, index) => {
+        if (!v.id || !population.all_assessments[v.id]) return null;
 
-        const pair = getTextValuePairByVariable(allEvaluations[v.id], currentShowingData);
+        const pair = getTextValuePairByVariable(population.all_assessments[v.id], currentShowingData);
 
         return {
           x: index + 1,
@@ -76,10 +61,23 @@ const DashboardPage: React.FC = () => {
         };
       }).filter(Boolean);
 
-      console.log(points)
-
       setChartPoints(points as any[]);
-    }, [currentShowingData, allVolunteers, allEvaluations]);
+    }, [currentShowingData, population]);
+
+    const regressionLine = () => {
+      if (chartPoints.length === 0) return [];
+    
+      const { a, b } = calcularRegressaoLinear(chartPoints);
+    
+      // Descobre mínimo e máximo de X para cobrir todo o gráfico
+      const minX = Math.min(...chartPoints.map(p => p.x));
+      const maxX = Math.max(...chartPoints.map(p => p.x));
+    
+      return [
+        { x: minX, y: a * minX + b },
+        { x: maxX, y: a * maxX + b },
+      ];
+    };
 
     const onSelectChangeHadler = (event: React.ChangeEvent<HTMLSelectElement>) => {
       const {name, value} = event.target
@@ -88,14 +86,26 @@ const DashboardPage: React.FC = () => {
     }
 
     const chartData = {
-        datasets: [{
+      datasets: [
+        {
           label: 'Voluntários',
           data: chartPoints,
-          backgroundColor: 'rgb(255, 99, 132)'
-        }],
+          backgroundColor: 'rgb(255, 99, 132)',
+          showLine: false,
+        },
+        {
+          label: 'Linha de Regressão',
+          data: regressionLine(),
+          borderColor: 'rgb(54, 162, 235)',
+          borderWidth: 2,
+          fill: false,
+          type: 'line' as const,
+          pointRadius: 0,
+        }
+      ]
     };
 
-    const chartOptions: ChartOptions<'scatter'> = {
+    const chartOptions: ChartOptions<'scatter' | 'line'> = {
         scales: {
           x: {
             type: 'linear',
