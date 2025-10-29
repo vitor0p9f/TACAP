@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState, useContext } from 'react';
 import { Radar } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -10,6 +10,7 @@ import {
   Legend,
 } from 'chart.js';
 import styles from './ResultadoAvaliacao.module.css';
+import { PopulationContext } from '../context/population';
 
 ChartJS.register(
   RadialLinearScale,
@@ -23,6 +24,7 @@ ChartJS.register(
 interface ResultadoAvaliacaoProps {
   isOpen: boolean;
   onClose: () => void;
+  voluntarioId?: number | null;
 }
 
 interface DadosAvaliacao {
@@ -33,7 +35,6 @@ interface DadosAvaliacao {
   potenciaTACAP: { individuo: number; populacao: number };
 }
 
-// Dados de exemplo para demonstração
 const mockRadarData: DadosAvaliacao = {
   RFC: { individuo: 8, populacao: 10 },
   IACAP: { individuo: 7.5, populacao: 6.8 },
@@ -42,8 +43,10 @@ const mockRadarData: DadosAvaliacao = {
   potenciaTACAP: { individuo: 9, populacao: 8 },
 };
 
-const ResultadoAvaliacao: React.FC<ResultadoAvaliacaoProps> = ({ isOpen, onClose }) => {
+const ResultadoAvaliacao: React.FC<ResultadoAvaliacaoProps> = ({ isOpen, onClose, voluntarioId }) => {
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const [avaliacao, setAvaliacao] = useState<any | null>(null);
+  const population = useContext(PopulationContext);
 
   useEffect(() => {
     if (isOpen) {
@@ -53,6 +56,27 @@ const ResultadoAvaliacao: React.FC<ResultadoAvaliacaoProps> = ({ isOpen, onClose
     }
   }, [isOpen]);
 
+  useEffect(() => {
+    const fetch = async () => {
+      if (!isOpen || !voluntarioId) return;
+      try {
+        const avaliacoes = (await window.api.invoke(
+          'avaliacao:listByVoluntario',
+          voluntarioId
+        )) as any[];
+        if (avaliacoes && avaliacoes.length > 0) {
+          setAvaliacao(avaliacoes[0]);
+        } else {
+          setAvaliacao(null);
+        }
+      } catch (e) {
+        console.error('Erro ao carregar avaliação:', e);
+        setAvaliacao(null);
+      }
+    };
+    fetch();
+  }, [isOpen, voluntarioId]);
+
   const labels = ['RFC', 'IACAP', 'IF', 'PSE', 'Potência TACAP'];
 
   const chartData = {
@@ -61,11 +85,11 @@ const ResultadoAvaliacao: React.FC<ResultadoAvaliacaoProps> = ({ isOpen, onClose
       {
         label: 'Indivíduo',
         data: [
-          mockRadarData.RFC.individuo,
-          mockRadarData.IACAP.individuo,
-          mockRadarData.IF.individuo,
-          mockRadarData.PSE.individuo,
-          mockRadarData.potenciaTACAP.individuo,
+          avaliacao?.rfc ?? 0,
+          avaliacao?.iacap ?? 0,
+          avaliacao?.if_valor ?? 0,
+          avaliacao?.pse ?? 0,
+          avaliacao?.potencia ?? 0,
         ],
         backgroundColor: 'rgba(255, 99, 132, 0.2)', 
         borderColor: 'rgba(255, 99, 132, 1)',
@@ -75,11 +99,11 @@ const ResultadoAvaliacao: React.FC<ResultadoAvaliacaoProps> = ({ isOpen, onClose
       {
         label: 'Média da População',
         data: [
-            mockRadarData.RFC.populacao,
-            mockRadarData.IACAP.populacao,
-            mockRadarData.IF.populacao,
-            mockRadarData.PSE.populacao,
-            mockRadarData.potenciaTACAP.populacao,
+            population.means.rfc || 0,
+            population.means.iacap || 0,
+            population.means.if_value || 0,
+            population.means.pse || 0,
+            population.means.power || 0,
         ],
         backgroundColor: 'rgba(54, 162, 235, 0.2)', 
         borderColor: 'rgba(54, 162, 235, 1)',
@@ -122,10 +146,6 @@ const ResultadoAvaliacao: React.FC<ResultadoAvaliacaoProps> = ({ isOpen, onClose
         <main className={styles.chartContainer}>
           <Radar data={chartData} options={chartOptions} />
         </main>
-
-        <footer className={styles.footer}>
-          <button className={styles.exportButton}>Exportar</button>
-        </footer>
       </div>
     </dialog>
   );

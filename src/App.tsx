@@ -27,13 +27,7 @@ const MainContent = styled.div`
 function App() {
   const [currentPage, setCurrentPage] = useState<Pages>('Volunteers');
 
-  // State e handlers para controlar os modais de gráfico.
-  const [isResumoFisicoOpen, setIsResumoFisicoOpen] = useState(false);
-  const [isResultadoAvaliacaoOpen, setIsResultadoAvaliacaoOpen] = useState(false);
-  const handleOpenResumoFisico = () => setIsResumoFisicoOpen(true);
-  const handleCloseResumoFisico = () => setIsResumoFisicoOpen(false);
-  const handleOpenResultadoAvaliacao = () => setIsResultadoAvaliacaoOpen(true);
-  const handleCloseResultadoAvaliacao = () => setIsResultadoAvaliacaoOpen(false);
+  // Modais agora são controlados dentro de VolunteersPage
 
   return (
     <>
@@ -45,29 +39,13 @@ function App() {
             currentPage={currentPage}
             setCurrentPage={setCurrentPage}
           />
-          {currentPage === "Volunteers" && 
-            // Passa as funções para a VolunteersPage conseguir abrir os modais.
-            <VolunteersPage
-              setCurrentPage={setCurrentPage}
-              openResumoFisico={handleOpenResumoFisico}
-              openResultadoAvaliacao={handleOpenResultadoAvaliacao}
-            />
-          }
+          {currentPage === "Volunteers" && <VolunteersPage setCurrentPage={setCurrentPage} />}
           {currentPage === "Registration" && <RegistrationForm setCurrentPage={setCurrentPage}/>}
           {currentPage === "Dashboard" && <DashboardPage/>}
         </MainContent>
       </AppContainer>
       
-      {/* Renderiza os modais aqui para que possam ser abertos por qualquer página. */}
-      <ResumoFisico 
-          isOpen={isResumoFisicoOpen} 
-          onClose={handleCloseResumoFisico} 
-      />
-      
-      <ResultadoAvaliacao 
-          isOpen={isResultadoAvaliacaoOpen} 
-          onClose={handleCloseResultadoAvaliacao} 
-      />
+      {/* Modais renderizados pela VolunteersPage */}
     </>
   );
 }
