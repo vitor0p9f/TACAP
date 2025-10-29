@@ -3,8 +3,7 @@ export interface Voluntario {
     nome: string;
     apelido?: string;
     idade?: number;
-    tempo_pratica?: number; 
-    documento_id?: string;
+    tempo_pratica?: string; 
     peso?: number;
     altura?: number;
     graduacao?: string;

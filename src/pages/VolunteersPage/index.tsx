@@ -3,6 +3,7 @@ import { Header } from '../../components/Header';
 import { VolunteerTable } from '../../components/VolunteerTable';
 import { SuccessModal } from '../../components/modals/SuccessModal';
 import * as S from './styles';
+import { Pages } from '../../types/pages';
 
 interface VolunteersPageProps {
   setCurrentPage: (page: string) => void;
