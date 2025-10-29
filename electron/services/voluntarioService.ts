@@ -5,9 +5,9 @@ export class VoluntarioService {
     create(data: Voluntario): Voluntario {
         const info = DbProvider.run(`
             INSERT INTO voluntarios (
-                nome, apelido, idade, tempo_pratica, documento_id, peso, altura, graduacao, genero, endereco, contato
+                nome, apelido, idade, tempo_pratica, peso, altura, graduacao, genero, endereco, contato
             ) VALUES (
-                @nome, @apelido, @idade, @tempo_pratica, @documento_id, @peso, @altura, @graduacao, @genero, @endereco, @contato
+                @nome, @apelido, @idade, @tempo_pratica, @peso, @altura, @graduacao, @genero, @endereco, @contato
             )
         `, data);
         return { ...data, id: Number(info.lastID) };
@@ -28,8 +28,8 @@ export class VoluntarioService {
         DbProvider.run(`
             UPDATE voluntarios SET
                 nome=@nome, apelido=@apelido, idade=@idade, tempo_pratica=@tempo_pratica,
-                documento_id=@documento_id, peso=@peso, altura=@altura, graduacao=@graduacao,
-                genero=@genero, endereco=@endereco, contato=@contato
+                peso=@peso, altura=@altura, graduacao=@graduacao, genero=@genero, 
+                endereco=@endereco, contato=@contato
             WHERE id=@id
         `, { ...updated, id });
         return { ...updated, id };
