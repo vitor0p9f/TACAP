@@ -8,6 +8,7 @@
     width: min(900px, 90vw); /* Usa o menor entre 900px e 90% da tela */
     height: fit-content;
     overflow: hidden;
+    margin: auto; /* Força a centralização */
   }
   
   .modal::backdrop {

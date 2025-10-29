@@ -9,9 +9,10 @@ interface VolunteersPageProps {
     setCurrentPage: (page: Pages) => void;
     openResumoFisico: () => void;
     openResultadoAvaliacao: () => void;
+    handleGoToEdit: (volunteer: Volunteer) => void;
 }
 
-export function VolunteersPage({setCurrentPage, openResumoFisico, openResultadoAvaliacao}:VolunteersPageProps) {
+export function VolunteersPage({setCurrentPage, openResumoFisico, openResultadoAvaliacao, handleGoToEdit}:VolunteersPageProps) {
     const [searchTerm, setSearchTerm] = useState('');
     const [volunteers, setVolunteers] = useState<Volunteer[]>([]);
     const [filteredVolunteers, setFilteredVolunteers] = useState<Volunteer[]>([]);
@@ -38,6 +39,7 @@ export function VolunteersPage({setCurrentPage, openResumoFisico, openResultadoA
                 setCurrentPage={setCurrentPage}
                 openResumoFisico={openResumoFisico}
                 openResultadoAvaliacao={openResultadoAvaliacao}
+                handleGoToEdit={handleGoToEdit}
             />
         </S.Container>
     );

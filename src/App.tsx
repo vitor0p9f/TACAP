@@ -9,6 +9,7 @@ import ResumoFisico from "./components/ResumoFisico";
 import ResultadoAvaliacao from "./components/ResultadoAvaliacao";
 import DashboardPage from './pages/DashboardPage';
 import { Pages } from './types/pages';
+import { Volunteer } from './services/voluntarioClient';
 
 const AppContainer = styled.div`
   display: flex;
@@ -26,6 +27,7 @@ const MainContent = styled.div`
 
 function App() {
   const [currentPage, setCurrentPage] = useState<Pages>('Volunteers');
+  const [volunteerToEdit, setVolunteerToEdit] = useState<Volunteer | null>(null);
 
   // State e handlers para controlar os modais de gráfico.
   const [isResumoFisicoOpen, setIsResumoFisicoOpen] = useState(false);
@@ -34,6 +36,11 @@ function App() {
   const handleCloseResumoFisico = () => setIsResumoFisicoOpen(false);
   const handleOpenResultadoAvaliacao = () => setIsResultadoAvaliacaoOpen(true);
   const handleCloseResultadoAvaliacao = () => setIsResultadoAvaliacaoOpen(false);
+
+  const handleGoToEdit = (volunteer: Volunteer) => {
+    setVolunteerToEdit(volunteer);
+    setCurrentPage('Registration');
+  }
 
   return (
     <>
@@ -51,9 +58,10 @@ function App() {
               setCurrentPage={setCurrentPage}
               openResumoFisico={handleOpenResumoFisico}
               openResultadoAvaliacao={handleOpenResultadoAvaliacao}
+              handleGoToEdit={handleGoToEdit}
             />
           }
-          {currentPage === "Registration" && <RegistrationForm setCurrentPage={setCurrentPage}/>}
+          {currentPage === "Registration" && <RegistrationForm setCurrentPage={setCurrentPage} volunteerToEdit={volunteerToEdit} />}
           {currentPage === "Dashboard" && <DashboardPage/>}
         </MainContent>
       </AppContainer>

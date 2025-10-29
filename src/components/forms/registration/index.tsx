@@ -1,9 +1,9 @@
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import "./style.css"
 import Input from "../../input"
 import Button from "../../button"
 import { Select } from "../../select"
-import { voluntarioClient } from "../../../services/voluntarioClient"
+import { voluntarioClient, Volunteer } from "../../../services/voluntarioClient"
 import { SuccessModal } from "../../modals/SuccessModal"
 import { Pages } from "../../../types/pages"
 
@@ -11,7 +11,7 @@ const phoneMask = (value: string) => {
     value = value.replace(/\D/g, ""); // Remove all digits
 
     // Put the DDD (area code) inside parentheses and add a space before the number
-    value = value.replace(/^(\d{2})(\d)/, "($1) $2"); 
+    value = value.replace(/(\d{2})(\d)/, "($1) $2"); 
 
     // Add a hyphen before the last 4 digits
     value = value.replace(/(\d{5})(\d{4})$/, "$1-$2");
@@ -20,10 +20,11 @@ const phoneMask = (value: string) => {
 }
 
 interface RegistrationFormProps {
-    setCurrentPage: (page: Pages) => void
+    setCurrentPage: (page: Pages) => void;
+    volunteerToEdit?: Volunteer | null;
 }
 
-const RegistrationForm: React.FC<RegistrationFormProps> = ({setCurrentPage}) => {
+const RegistrationForm: React.FC<RegistrationFormProps> = ({setCurrentPage, volunteerToEdit}) => {
     const [formData, setFormData] = useState({
         name: "",
         nickname: "",
@@ -48,6 +49,26 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({setCurrentPage}) => 
     })
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [modalMessage, setModalMessage] = useState("")
+
+    const isEditing = !!volunteerToEdit;
+
+    useEffect(() => {
+        if (isEditing && volunteerToEdit) {
+            setFormData({
+                name: volunteerToEdit.nome,
+                nickname: volunteerToEdit.apelido,
+                age: String(volunteerToEdit.idade),
+                practice_time: volunteerToEdit.tempo_pratica,
+                graduation: volunteerToEdit.graduacao,
+                gender: volunteerToEdit.genero,
+                weight: String(volunteerToEdit.peso),
+                height: String(volunteerToEdit.altura),
+                address: JSON.parse(volunteerToEdit.endereco),
+                contact: JSON.parse(volunteerToEdit.contato),
+                documento_id: volunteerToEdit.documento_id || "1",
+            });
+        }
+    }, [volunteerToEdit, isEditing]);
 
     const updateData = (name: string, value: string) => {
         if(name.includes(".")){
@@ -81,9 +102,8 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({setCurrentPage}) => 
 
     const onSubmitHandler = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault()
-        console.log(formData)
-
-        voluntarioClient.create({
+        
+        const payload = {
             nome: formData.name,
             altura: Number(formData.height),
             apelido: formData.nickname,
@@ -94,9 +114,15 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({setCurrentPage}) => 
             idade: Number(formData.age),
             peso: Number(formData.weight),
             tempo_pratica: formData.practice_time,
-        })
-        .then(_ => setModalMessage("Voluntário cadastrado com sucesso!"))
-        .catch(error => setModalMessage(`Erro ao cadastrar voluntário!\n\n${error}!`))
+        };
+
+        const action = isEditing && volunteerToEdit
+            ? voluntarioClient.update(volunteerToEdit.id!, payload)
+            : voluntarioClient.create(payload);
+
+        action
+            .then(_ => setModalMessage(`Voluntário ${isEditing ? 'atualizado' : 'cadastrado'} com sucesso!`))
+            .catch(error => setModalMessage(`Erro ao ${isEditing ? 'atualizar' : 'cadastrar'} voluntário!\n\n${error}!`))
 
         setIsModalOpen(true)
     }
@@ -305,7 +331,7 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({setCurrentPage}) => 
                 </div>
                 <div className="Line">
                     <Button onClick={()=> setCurrentPage("Volunteers")}>Voltar</Button>
-                    <Button variant="success">Cadastrar</Button>
+                    <Button variant="success">{isEditing ? 'Salvar' : 'Cadastrar'}</Button>
                 </div>
             </form>
         </> 

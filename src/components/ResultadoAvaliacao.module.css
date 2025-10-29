@@ -8,6 +8,7 @@
   max-height: 95vh;
   width: min(650px, 85vw); /* Usa o menor entre 650px e 85% da tela */
   height: fit-content;
+  margin: auto; /* Força a centralização */
 }
 
 .modal::backdrop {

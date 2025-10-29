@@ -13,9 +13,10 @@ interface VolunteersTableProps {
     setCurrentPage: (page: Pages) => void;
     openResumoFisico: () => void;
     openResultadoAvaliacao: () => void;
+    handleGoToEdit: (volunteer: Volunteer) => void;
 }
 
-export function VolunteerTable({ volunteers, setVolunteers, setCurrentPage, openResumoFisico, openResultadoAvaliacao }: VolunteersTableProps) {
+export function VolunteerTable({ volunteers, setVolunteers, setCurrentPage, openResumoFisico, openResultadoAvaliacao, handleGoToEdit }: VolunteersTableProps) {
     const [modal, setModal] = useState<'delete' | 'success' | 'assessment' | null>(null);
     const [selectedVolunteer, setSelectedVolunteer] = useState<Volunteer | null>(null);
     const [successMessage, setSuccessMessage] = useState('');
@@ -44,8 +45,8 @@ export function VolunteerTable({ volunteers, setVolunteers, setCurrentPage, open
         console.log('Dados da avaliação:', data);
         console.log('Para o voluntário:', selectedVolunteer?.apelido);
         // Aqui adicionar a chamada de API para salvar a avaliação
-        setSuccessMessage('Voluntário avaliado com sucesso!');
-        setModal('success');
+        closeModal(); // Fecha o modal de avaliação
+        openResumoFisico(); // Abre o modal de resumo físico
     };
 
     const closeModal = () => {
@@ -83,7 +84,7 @@ export function VolunteerTable({ volunteers, setVolunteers, setCurrentPage, open
                                             <ClipboardIcon size={18} />
                                         </button>
                                     )}
-                                    <button title="Editar" aria-label={`Editar ${volunteer.apelido}`} onClick={openResumoFisico}>
+                                    <button title="Editar" aria-label={`Editar ${volunteer.apelido}`} onClick={() => handleGoToEdit(volunteer)}>
                                         <PencilSimpleIcon size={18} />
                                     </button>
                                     <button title="Excluir" aria-label={`Excluir ${volunteer.apelido}`} onClick={() => handleOpenDeleteModal(volunteer)}>
