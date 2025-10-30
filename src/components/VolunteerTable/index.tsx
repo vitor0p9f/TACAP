@@ -4,6 +4,8 @@ import * as S from './styles';
 import { ConfirmDeleteModal } from '../modals/ConfirmDeleteModal';
 import { AssessmentModal } from '../modals/AssessmentModal';
 import { Voluntario } from '../../../electron/models/voluntario';
+import { avaliacaoClient } from '../../services/avaliacaoClient';
+import { FormData } from '../forms/assessment';
 
 interface VolunteersTableProps {
   setCurrentPage: (page: string) => void;
@@ -65,11 +67,31 @@ export function VolunteerTable({
     setModal('assessment');
   };
 
-  const handleAssessmentSubmit = (data: any) => {
+  const handleAssessmentSubmit = async (data: FormData) => {
     console.log('Dados da avaliação:', data);
     console.log('Para o voluntário:', selectedVolunteer?.apelido);
-    showSuccessMessage('Voluntário avaliado com sucesso!');
-    closeModal();
+
+    if(selectedVolunteer){
+        let total_blows = data.first_round_blows + data.second_round_blows + data.third_round_total_blows
+        let iacap = (data.final_heart_rate + data.heart_rate_after_one_minute)/total_blows
+        let power = (total_blows * selectedVolunteer.peso)/1.25
+        let fatigue = ((data.first_round_blows - data.third_roud_latest_seconds_blows) * 100)/data.first_round_blows
+        
+        let assessment = await avaliacaoClient.create({
+            golpes: total_blows,
+            iacap,
+            potencia: power,
+            if_valor:fatigue,
+            voluntario_id: selectedVolunteer.id,
+            pse: data.rate_of_perceived_exertion,
+            rfc: data.final_heart_rate - data.heart_rate_after_one_minute
+        })
+
+        if (assessment) {
+            showSuccessMessage('Voluntário avaliado com sucesso!');
+            closeModal();
+        }
+    }
   };
 
   const closeModal = () => {
