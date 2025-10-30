@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useContext } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { Radar } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -11,6 +11,8 @@ import {
 } from 'chart.js';
 import styles from './ResultadoAvaliacao.module.css';
 import { PopulationContext } from '../context/population';
+import { Avaliacao, avaliacaoClient } from '../services/avaliacaoClient';
+import { Voluntario } from '../../electron/models/voluntario';
 
 ChartJS.register(
   RadialLinearScale,
@@ -24,58 +26,34 @@ ChartJS.register(
 interface ResultadoAvaliacaoProps {
   isOpen: boolean;
   onClose: () => void;
-  voluntarioId?: number | null;
+  volunteer: Voluntario | null
 }
 
-interface DadosAvaliacao {
-  RFC: { individuo: number; populacao: number };
-  IACAP: { individuo: number; populacao: number };
-  IF: { individuo: number; populacao: number };
-  PSE: { individuo: number; populacao: number };
-  potenciaTACAP: { individuo: number; populacao: number };
-}
-
-const mockRadarData: DadosAvaliacao = {
-  RFC: { individuo: 8, populacao: 10 },
-  IACAP: { individuo: 7.5, populacao: 6.8 },
-  IF: { individuo: 6, populacao: 7.5 }, 
-  PSE: { individuo: 8, populacao: 10 },
-  potenciaTACAP: { individuo: 9, populacao: 8 },
-};
-
-const ResultadoAvaliacao: React.FC<ResultadoAvaliacaoProps> = ({ isOpen, onClose, voluntarioId }) => {
+const ResultadoAvaliacao: React.FC<ResultadoAvaliacaoProps> = ({ isOpen, onClose, volunteer }) => {
   const dialogRef = useRef<HTMLDialogElement>(null);
-  const [avaliacao, setAvaliacao] = useState<any | null>(null);
-  const population = useContext(PopulationContext);
+  const populationContext = useContext(PopulationContext)
+  const [assesment, setAssesment] = useState<Avaliacao>({
+    voluntario_id: 0,
+    iacap: 0,
+    if_valor: 0,
+    potencia: 0,
+    pse: 0,
+    rfc: 0
+  })
 
   useEffect(() => {
     if (isOpen) {
+      (async () => {
+        if (volunteer?.id) {
+          const result = await avaliacaoClient.listByVoluntario(volunteer.id);
+          setAssesment(result[0]);
+        }
+      })()
       dialogRef.current?.showModal();
     } else {
       dialogRef.current?.close();
     }
-  }, [isOpen]);
-
-  useEffect(() => {
-    const fetch = async () => {
-      if (!isOpen || !voluntarioId) return;
-      try {
-        const avaliacoes = (await window.api.invoke(
-          'avaliacao:listByVoluntario',
-          voluntarioId
-        )) as any[];
-        if (avaliacoes && avaliacoes.length > 0) {
-          setAvaliacao(avaliacoes[0]);
-        } else {
-          setAvaliacao(null);
-        }
-      } catch (e) {
-        console.error('Erro ao carregar avaliação:', e);
-        setAvaliacao(null);
-      }
-    };
-    fetch();
-  }, [isOpen, voluntarioId]);
+  }, [isOpen, volunteer?.id]);
 
   const labels = ['RFC', 'IACAP', 'IF', 'PSE', 'Potência TACAP'];
 
@@ -85,11 +63,11 @@ const ResultadoAvaliacao: React.FC<ResultadoAvaliacaoProps> = ({ isOpen, onClose
       {
         label: 'Indivíduo',
         data: [
-          avaliacao?.rfc ?? 0,
-          avaliacao?.iacap ?? 0,
-          avaliacao?.if_valor ?? 0,
-          avaliacao?.pse ?? 0,
-          avaliacao?.potencia ?? 0,
+          assesment.rfc,
+          assesment.iacap,
+          assesment.if_valor,
+          assesment.pse,
+          assesment.potencia
         ],
         backgroundColor: 'rgba(255, 99, 132, 0.2)', 
         borderColor: 'rgba(255, 99, 132, 1)',
@@ -99,11 +77,11 @@ const ResultadoAvaliacao: React.FC<ResultadoAvaliacaoProps> = ({ isOpen, onClose
       {
         label: 'Média da População',
         data: [
-            population.means.rfc || 0,
-            population.means.iacap || 0,
-            population.means.if_value || 0,
-            population.means.pse || 0,
-            population.means.power || 0,
+          populationContext.means.rfc,
+          populationContext.means.iacap,
+          populationContext.means.if_value,
+          populationContext.means.pse,
+          populationContext.means.power
         ],
         backgroundColor: 'rgba(54, 162, 235, 0.2)', 
         borderColor: 'rgba(54, 162, 235, 1)',

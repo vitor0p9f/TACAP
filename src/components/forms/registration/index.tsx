@@ -81,7 +81,6 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({setCurrentPage}) => 
 
     const onSubmitHandler = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault()
-        console.log(formData)
 
         voluntarioClient.create({
             nome: formData.name,

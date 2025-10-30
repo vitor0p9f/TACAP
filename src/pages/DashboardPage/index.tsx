@@ -66,8 +66,6 @@ const DashboardPage: React.FC = () => {
       }));
 
       setChartPoints(points as any[]);
-
-      console.log(points)
       
       const meanValue = getMeanByVariable(population.means, currentShowingData)
       if (meanValue) setMean(meanValue) 
