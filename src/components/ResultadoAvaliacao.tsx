@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { Radar } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -10,6 +10,9 @@ import {
   Legend,
 } from 'chart.js';
 import styles from './ResultadoAvaliacao.module.css';
+import { PopulationContext } from '../context/population';
+import { Avaliacao, avaliacaoClient } from '../services/avaliacaoClient';
+import { Voluntario } from '../services/voluntarioClient';
 
 ChartJS.register(
   RadialLinearScale,
@@ -23,35 +26,36 @@ ChartJS.register(
 interface ResultadoAvaliacaoProps {
   isOpen: boolean;
   onClose: () => void;
+  volunteer: Voluntario | null
 }
 
-interface DadosAvaliacao {
-  RFC: { individuo: number; populacao: number };
-  IACAP: { individuo: number; populacao: number };
-  IF: { individuo: number; populacao: number };
-  PSE: { individuo: number; populacao: number };
-  potenciaTACAP: { individuo: number; populacao: number };
-}
-
-// Dados de exemplo para demonstração
-const mockRadarData: DadosAvaliacao = {
-  RFC: { individuo: 8, populacao: 10 },
-  IACAP: { individuo: 7.5, populacao: 6.8 },
-  IF: { individuo: 6, populacao: 7.5 }, 
-  PSE: { individuo: 8, populacao: 10 },
-  potenciaTACAP: { individuo: 9, populacao: 8 },
-};
-
-const ResultadoAvaliacao: React.FC<ResultadoAvaliacaoProps> = ({ isOpen, onClose }) => {
+const ResultadoAvaliacao: React.FC<ResultadoAvaliacaoProps> = ({ isOpen, onClose, volunteer }) => {
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const populationContext = useContext(PopulationContext)
+  const [assesment, setAssesment] = useState<Avaliacao>({
+    voluntario_id: 0,
+    iacap: 0,
+    if_valor: 0,
+    potencia: 0,
+    pse: 0,
+    rfc: 0
+  })
 
   useEffect(() => {
     if (isOpen) {
       dialogRef.current?.showModal();
+      (async () => {
+        if (volunteer?.id) {
+          const result = await avaliacaoClient.listByVoluntario(volunteer.id);
+          if (Array.isArray(result) && result.length > 0 && result[0]) {
+            setAssesment(result[0]);
+          }
+        }
+      })();
     } else {
       dialogRef.current?.close();
     }
-  }, [isOpen]);
+  }, [isOpen, volunteer?.id]);
 
   const labels = ['RFC', 'IACAP', 'IF', 'PSE', 'Potência TACAP'];
 
@@ -61,11 +65,11 @@ const ResultadoAvaliacao: React.FC<ResultadoAvaliacaoProps> = ({ isOpen, onClose
       {
         label: 'Indivíduo',
         data: [
-          mockRadarData.RFC.individuo,
-          mockRadarData.IACAP.individuo,
-          mockRadarData.IF.individuo,
-          mockRadarData.PSE.individuo,
-          mockRadarData.potenciaTACAP.individuo,
+          assesment.rfc,
+          assesment.iacap,
+          assesment.if_valor,
+          assesment.pse,
+          assesment.potencia
         ],
         backgroundColor: 'rgba(255, 99, 132, 0.2)', 
         borderColor: 'rgba(255, 99, 132, 1)',
@@ -75,11 +79,11 @@ const ResultadoAvaliacao: React.FC<ResultadoAvaliacaoProps> = ({ isOpen, onClose
       {
         label: 'Média da População',
         data: [
-            mockRadarData.RFC.populacao,
-            mockRadarData.IACAP.populacao,
-            mockRadarData.IF.populacao,
-            mockRadarData.PSE.populacao,
-            mockRadarData.potenciaTACAP.populacao,
+          populationContext.means.rfc,
+          populationContext.means.iacap,
+          populationContext.means.if_value,
+          populationContext.means.pse,
+          populationContext.means.power
         ],
         backgroundColor: 'rgba(54, 162, 235, 0.2)', 
         borderColor: 'rgba(54, 162, 235, 1)',

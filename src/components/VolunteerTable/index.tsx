@@ -195,6 +195,7 @@ export function VolunteerTable({
       <ResultadoAvaliacao
         isOpen={showResultado}
         onClose={() => setShowResultado(false)}
+        volunteer={selectedVolunteer}
       />
     </S.Container>
   );
