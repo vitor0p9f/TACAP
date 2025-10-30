@@ -13,7 +13,15 @@ export class VoluntarioService {
         return { ...data, id: Number(info.lastID) };
     }
 
-    list(): Voluntario[] {
+    list(search?: string): Voluntario[] {
+        const hasSearch = Boolean(search && String(search).trim().length > 0);
+        const whereClause = hasSearch
+            ? `WHERE 
+                v.nome LIKE @term COLLATE NOCASE OR 
+                v.apelido LIKE @term COLLATE NOCASE OR 
+                v.graduacao LIKE @term COLLATE NOCASE OR 
+                CAST(v.tempo_pratica AS TEXT) LIKE @term`
+            : '';
 
         const query = `
             SELECT 
@@ -21,11 +29,13 @@ export class VoluntarioService {
                 CASE WHEN COUNT(a.id) > 0 THEN 1 ELSE 0 END as realizouAvaliacao
             FROM voluntarios v
             LEFT JOIN avaliacoes a ON v.id = a.voluntario_id
+            ${whereClause}
             GROUP BY v.id
             ORDER BY v.created_at DESC
         `;
 
-        return DbProvider.all<Voluntario>(query);
+        const params = hasSearch ? { term: `%${String(search).trim()}%` } : undefined;
+        return DbProvider.all<Voluntario>(query, params as any);
     }
 
     getById(id: number): Voluntario | undefined {

@@ -1,17 +1,20 @@
-.modal {
+  .modal {
     border: none;
     border-radius: 8px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
     padding: 0;
     max-width: 95vw;
     max-height: 95vh;
-    width: min(900px, 90vw); /* Usa o menor entre 900px e 90% da tela */
+    width: min(900px, 90vw);
     height: fit-content;
     overflow: hidden;
+    position: fixed;
+    inset: 0;
+    margin: auto; /* centraliza na tela */
   }
   
   .modal::backdrop {
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, 0.6);
   }
   
   .modalContent {
@@ -30,12 +33,16 @@
     align-items: flex-start;
     border-bottom: 1px solid #eee;
     padding-bottom: 16px;
+    position: relative;
   }
   
   .headerTitleContainer {
-    width: 100%;
+    width: auto;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
     text-align: center;
-    padding-left: 30px;
+    padding-left: 0;
   }
   
   .header h2 {
@@ -79,7 +86,7 @@
   .chartContainer {
     position: relative;
     height: clamp(300px, 40vh, 500px);
-    min-height: 300px; /* Altura mínima para garantir legibilidade */
+    min-height: 300px;
   }
   
   .footer {
@@ -87,7 +94,7 @@
     justify-content: center;
     padding-top: clamp(8px, 2vw, 16px);
     border-top: 1px solid #eee;
-    margin-top: auto; /* Empurra o footer para baixo */
+    margin-top: auto;
   }
   
   .exportButton {
@@ -108,13 +115,13 @@
   
   @media (max-width: 768px) {
     .modal {
-      width: 95vw; /* Em telas pequenas, usa quase toda a largura */
+      width: 95vw;
       max-width: 95vw;
     }
     
     /* A regra antiga para .userInfo em mobile foi removida pois não é mais necessária */
     
     .chartContainer {
-      height: clamp(250px, 35vh, 400px); /* Altura menor em mobile */
+      height: clamp(250px, 35vh, 400px);
     }
   }

@@ -57,6 +57,27 @@ const ResultadoAvaliacao: React.FC<ResultadoAvaliacaoProps> = ({ isOpen, onClose
     }
   }, [isOpen, volunteer?.id]);
 
+  useEffect(() => {
+    const fetch = async () => {
+      if (!isOpen || !voluntarioId) return;
+      try {
+        const avaliacoes = (await window.api.invoke(
+          'avaliacao:listByVoluntario',
+          voluntarioId
+        )) as any[];
+        if (avaliacoes && avaliacoes.length > 0) {
+          setAvaliacao(avaliacoes[0]);
+        } else {
+          setAvaliacao(null);
+        }
+      } catch (e) {
+        console.error('Erro ao carregar avaliação:', e);
+        setAvaliacao(null);
+      }
+    };
+    fetch();
+  }, [isOpen, voluntarioId]);
+
   const labels = ['RFC', 'IACAP', 'IF', 'PSE', 'Potência TACAP'];
 
   const chartData = {
@@ -102,15 +123,32 @@ const ResultadoAvaliacao: React.FC<ResultadoAvaliacaoProps> = ({ isOpen, onClose
           display: true,
         },
         suggestedMin: 0,
-        suggestedMax: 10, // Escala de 0-10 para normalizar todas as métricas
+        suggestedMax: 10,
         ticks: {
-          stepSize: 2 // Intervalos de 2 para melhor visualização
+          stepSize: 1,
+          font: {
+            size: 8,
+            family: 'Arial, sans-serif'
+          },
+          maxTicksLimit: 6
+        },
+        pointLabels: {
+          font: {
+            size: 10
+          }
         }
       },
     },
     plugins: {
       legend: {
         position: 'top' as const,
+        labels: {
+          font: {
+            size: 10,
+            family: 'Arial, sans-serif'
+          },
+          padding: 15
+        }
       },
     },
   };
@@ -126,10 +164,6 @@ const ResultadoAvaliacao: React.FC<ResultadoAvaliacaoProps> = ({ isOpen, onClose
         <main className={styles.chartContainer}>
           <Radar data={chartData} options={chartOptions} />
         </main>
-
-        <footer className={styles.footer}>
-          <button className={styles.exportButton}>Exportar</button>
-        </footer>
       </div>
     </dialog>
   );

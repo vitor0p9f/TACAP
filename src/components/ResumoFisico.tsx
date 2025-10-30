@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState, useContext } from 'react';
 import { Bar } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -11,6 +11,7 @@ import {
   Legend,
 } from 'chart.js';
 import styles from './ResumoFisico.module.css';
+import { PopulationContext } from '../context/population';
 
 ChartJS.register(
   CategoryScale,
@@ -25,6 +26,7 @@ ChartJS.register(
 interface ResumoFisicoProps {
   isOpen: boolean;
   onClose: () => void;
+  voluntarioId?: number | null;
 }
 
 interface DadosResumo {
@@ -38,12 +40,11 @@ interface DadosResumo {
   BPM: { individuo: number; populacao: number };
 }
 
-// Dados mocados para demonstração
 const mockUserData = {
-  nome: 'João da Silva',
-  genero: 'Masculino',
-  idade: 28,
-  anosDePratica: 6,
+  nome: '—',
+  genero: '—',
+  idade: 0,
+  anosDePratica: 0,
 };
 
 const mockChartData: DadosResumo = {
@@ -57,8 +58,11 @@ const mockChartData: DadosResumo = {
   BPM: { individuo: 185, populacao: 180 },
 };
 
-const ResumoFisico: React.FC<ResumoFisicoProps> = ({ isOpen, onClose }) => {
+const ResumoFisico: React.FC<ResumoFisicoProps> = ({ isOpen, onClose, voluntarioId }) => {
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const [userData, setUserData] = useState(mockUserData);
+  const [chartValues, setChartValues] = useState<DadosResumo>(mockChartData);
+  const population = useContext(PopulationContext);
 
   useEffect(() => {
     if (isOpen) {
@@ -68,6 +72,45 @@ const ResumoFisico: React.FC<ResumoFisicoProps> = ({ isOpen, onClose }) => {
     }
   }, [isOpen]);
   
+  useEffect(() => {
+    const fetch = async () => {
+      if (!isOpen || !voluntarioId) return;
+      try {
+        const [volResp, avaliacoes] = await Promise.all([
+          window.api.invoke('voluntario:get', voluntarioId),
+          window.api.invoke('avaliacao:listByVoluntario', voluntarioId),
+        ]);
+        const vol: any = volResp as any;
+        const ultima = Array.isArray(avaliacoes) && avaliacoes.length > 0 ? avaliacoes[0] : null;
+
+        if (vol) {
+          setUserData({
+            nome: vol.nome ?? '—',
+            genero: vol.genero ?? '—',
+            idade: vol.idade ?? 0,
+            anosDePratica: Number(vol.tempo_pratica) || 0,
+          });
+        }
+
+        if (ultima || vol) {
+          setChartValues({
+            IACAP: { individuo: ultima?.iacap ?? 0, populacao: population.means.iacap || 0 },
+            indiceFadiga: { individuo: ultima?.if_valor ?? 0, populacao: population.means.if_value || 0 },
+            potenciaTACAP: { individuo: ultima?.potencia ?? 0, populacao: population.means.power || 0 },
+            recuperacaoFC: { individuo: ultima?.rfc ?? 0, populacao: population.means.rfc || 0 },
+            PSE: { individuo: ultima?.pse ?? 0, populacao: population.means.pse || 0 },
+            peso: { individuo: vol?.peso ?? 0, populacao: 0 },
+            altura: { individuo: vol?.altura ?? 0, populacao: 0 },
+            BPM: { individuo: ultima?.rfc ?? 0, populacao: population.means.rfc || 0 },
+          });
+        }
+      } catch (e) {
+        console.error('Erro ao carregar resumo físico:', e);
+      }
+    };
+    fetch();
+  }, [isOpen, voluntarioId]);
+  
   const labels = ['IACAP', 'Índice de fadiga', 'Potência TACAP', 'Recuperação FC', 'PSE', 'Peso (kg)', 'Altura (m)', 'BPM'];
   
   const chartData = {
@@ -76,14 +119,14 @@ const ResumoFisico: React.FC<ResumoFisicoProps> = ({ isOpen, onClose }) => {
       {
         label: 'Indivíduo',
         data: [
-          mockChartData.IACAP.individuo,
-          mockChartData.indiceFadiga.individuo,
-          mockChartData.potenciaTACAP.individuo,
-          mockChartData.recuperacaoFC.individuo,
-          mockChartData.PSE.individuo,
-          mockChartData.peso.individuo,
-          mockChartData.altura.individuo,
-          mockChartData.BPM.individuo,
+          chartValues.IACAP.individuo,
+          chartValues.indiceFadiga.individuo,
+          chartValues.potenciaTACAP.individuo,
+          chartValues.recuperacaoFC.individuo,
+          chartValues.PSE.individuo,
+          chartValues.peso.individuo,
+          chartValues.altura.individuo,
+          chartValues.BPM.individuo,
         ],
         backgroundColor: 'rgba(54, 162, 235, 0.6)',
         borderColor: 'rgba(54, 162, 235, 1)',
@@ -92,14 +135,14 @@ const ResumoFisico: React.FC<ResumoFisicoProps> = ({ isOpen, onClose }) => {
       {
         label: 'População',
         data: [
-          mockChartData.IACAP.populacao,
-          mockChartData.indiceFadiga.populacao,
-          mockChartData.potenciaTACAP.populacao,
-          mockChartData.recuperacaoFC.populacao,
-          mockChartData.PSE.populacao,
-          mockChartData.peso.populacao,
-          mockChartData.altura.populacao,
-          mockChartData.BPM.populacao,
+          chartValues.IACAP.populacao,
+          chartValues.indiceFadiga.populacao,
+          chartValues.potenciaTACAP.populacao,
+          chartValues.recuperacaoFC.populacao,
+          chartValues.PSE.populacao,
+          chartValues.peso.populacao,
+          chartValues.altura.populacao,
+          chartValues.BPM.populacao,
         ],
         backgroundColor: 'rgba(255, 99, 132, 0.6)',
         borderColor: 'rgba(255, 99, 132, 1)',
@@ -108,7 +151,7 @@ const ResumoFisico: React.FC<ResumoFisicoProps> = ({ isOpen, onClose }) => {
     ],
   };
 
-  const chartOptions = {
+  const chartOptions: any = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
@@ -139,9 +182,9 @@ const ResumoFisico: React.FC<ResumoFisicoProps> = ({ isOpen, onClose }) => {
         </header>
         
         <section className={styles.userInfo}>
-          <h3 className={styles.userName}>{mockUserData.nome}</h3>
+          <h3 className={styles.userName}>{userData.nome}</h3>
           <p className={styles.userDetails}>
-            {mockUserData.genero}, {mockUserData.idade}, {mockUserData.anosDePratica} anos de prática
+            {userData.genero}, {userData.idade}, {userData.anosDePratica} anos de prática
           </p>
         </section>
 
@@ -149,9 +192,7 @@ const ResumoFisico: React.FC<ResumoFisicoProps> = ({ isOpen, onClose }) => {
           <Bar options={chartOptions} data={chartData} />
         </main>
 
-        <footer className={styles.footer}>
-          <button className={styles.exportButton}>Exportar</button>
-        </footer>
+        {/* footer removido conforme solicitado */}
       </div>
     </dialog>
   );

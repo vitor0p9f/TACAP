@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { FileTextIcon, ClipboardIcon, PencilSimpleIcon, TrashIcon } from '@phosphor-icons/react';
 import * as S from './styles';
 import { ConfirmDeleteModal } from '../modals/ConfirmDeleteModal';
@@ -11,11 +11,17 @@ import ResultadoAvaliacao from '../ResultadoAvaliacao';
 interface VolunteersTableProps {
   setCurrentPage: (page: string) => void;
   showSuccessMessage: (message: string) => void;
+  searchTerm?: string;
+  openResumoFisico?: (voluntarioId: number) => void;
+  openResultadoAvaliacao?: (voluntarioId: number) => void;
 }
 
 export function VolunteerTable({
   setCurrentPage,
   showSuccessMessage,
+  searchTerm = "",
+  openResumoFisico,
+  openResultadoAvaliacao,
 }: VolunteersTableProps) {
   const [volunteers, setVolunteers] = useState<Voluntario[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -25,25 +31,36 @@ export function VolunteerTable({
   const [selectedVolunteer, setSelectedVolunteer] = useState<Voluntario | null>(null);
   const [showResultado, setShowResultado] = useState(false);
 
+  const [debouncedSearch, setDebouncedSearch] = useState(searchTerm);
+  const isFirstLoad = useRef(true);
+  useEffect(() => {
+    const id = setTimeout(() => setDebouncedSearch(searchTerm), 150);
+    return () => clearTimeout(id);
+  }, [searchTerm]);
+
   useEffect(() => {
     const fetchVolunteers = async () => {
       try {
+        if (isFirstLoad.current) setIsLoading(true);
         const fetchedVolunteers = (await window.api.invoke(
-          "voluntario:list"
+          "voluntario:list",
+          debouncedSearch
         )) as Voluntario[];
-
         setVolunteers(fetchedVolunteers);
         setError(null);
       } catch (err) {
         console.error('Erro ao buscar voluntários:', err);
         setError('Não foi possível carregar os voluntários.');
       } finally {
-        setIsLoading(false);
+        if (isFirstLoad.current) {
+          setIsLoading(false);
+          isFirstLoad.current = false;
+        }
       }
     };
 
     fetchVolunteers();
-  }, []);
+  }, [debouncedSearch]);
 
   const handleOpenDeleteModal = (volunteer: Voluntario) => {
     setSelectedVolunteer(volunteer);
@@ -136,12 +153,9 @@ export function VolunteerTable({
                 <td className="actions-cell">
                   {volunteer.realizouAvaliacao ? (
                     <button
-                      title="Ver avaliação"
-                      aria-label={`Ver avaliação de ${volunteer.apelido}`}
-                      onClick={() => {
-                        setSelectedVolunteer(volunteer);
-                        setShowResultado(true);
-                      }}
+                      title="Resumo físico"
+                      aria-label={`Resumo físico de ${volunteer.apelido}`}
+                      onClick={() => openResumoFisico && volunteer.id && openResumoFisico(volunteer.id)}
                     >
                       <FileTextIcon size={18} />
                     </button>
