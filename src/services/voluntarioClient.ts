@@ -29,7 +29,7 @@ function invoke<T>(channel: string, ...args: unknown[]) {
 }
 
 export const voluntarioClient = {
-  list: () => invoke<Voluntario[]>(CHANNELS.list),
+  list: (search?: string) => invoke<Voluntario[]>(CHANNELS.list, search),
   get: (id: number) => invoke<Voluntario | null>(CHANNELS.get, id),
   create: (data: UpsertPayload) => invoke<Voluntario>(CHANNELS.create, data),
   update: (id: number, data: UpsertPayload) => invoke<Voluntario>(CHANNELS.update, id, data),

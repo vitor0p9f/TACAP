@@ -9,9 +9,13 @@ interface ExportResult {
 
 interface HeaderProps {
   onExportSuccess: (message: string) => void;
+  onSearchChange?: (term: string) => void;
 }
 
-export function Header({ onExportSuccess }: HeaderProps) {
+export function Header({ onExportSuccess, onSearchChange }: HeaderProps) {
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    onSearchChange?.(e.target.value);
+  };
   const handleExportClick = async () => {
     try {
       console.log("Iniciando exportação...");
@@ -33,7 +37,7 @@ export function Header({ onExportSuccess }: HeaderProps) {
     <S.Container>
       <S.SearchBarWrapper>
         <MagnifyingGlassIcon size={20} />
-        <input type="search" placeholder="Busca..." />
+        <input type="search" placeholder="Busca..." onChange={handleSearchChange} />
       </S.SearchBarWrapper>
       <S.HeaderActions>
         <button title="Filtrar">

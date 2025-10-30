@@ -5,6 +5,7 @@ export const Container = styled.header`
     justify-content: space-between;
     align-items: center;
     margin-bottom: 24px;
+    flex-shrink: 0;
 `;
 
 export const SearchBarWrapper = styled.div`
