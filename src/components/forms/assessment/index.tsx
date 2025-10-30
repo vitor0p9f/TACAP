@@ -5,10 +5,10 @@ import Input from "../../input"
 import Button from "../../button"
 
 interface AssessmentFormProps {
-  onSubmit: (data: any) => void;
+  onSubmit: (data: FormData) => void;
 }
 
-type FormData = {
+export type FormData = {
     first_round_blows: number;
     second_round_blows: number;
     third_round_blows: number;
@@ -20,15 +20,11 @@ type FormData = {
 };
 
 const AssessmentForm: React.FC<AssessmentFormProps> = ({ onSubmit }) => {
-
     const { register, handleSubmit } = useForm<FormData>();
 
-
     const onSubmitHandler = (data: FormData) => {
-        console.log(data);
         onSubmit(data);
       }
-
 
     return(
         // handleSubmit executa sua função onSubmitHandler

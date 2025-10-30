@@ -19,8 +19,7 @@ export async function runSeed() {
       nome: nome,
       apelido: apelido,
       idade: faker.number.int({ min: 18, max: 50 }),
-      tempo_pratica: faker.number.int({ min: 1, max: 10 }),
-      documento_id: faker.string.numeric(11), // CPF simulado
+      tempo_pratica: faker.string.numeric(2),
       peso: faker.number.float({ min: 50, max: 120, fractionDigits: 1 }),
       altura: faker.number.float({ min: 1.5, max: 2.0, fractionDigits: 2 }),
       graduacao: faker.helpers.arrayElement([
