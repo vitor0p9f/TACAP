@@ -12,7 +12,7 @@ import {
 import styles from './ResultadoAvaliacao.module.css';
 import { PopulationContext } from '../context/population';
 import { Avaliacao, avaliacaoClient } from '../services/avaliacaoClient';
-import { Voluntario } from '../services/voluntarioClient';
+import { Voluntario } from '../../electron/models/voluntario';
 
 ChartJS.register(
   RadialLinearScale,
@@ -43,40 +43,17 @@ const ResultadoAvaliacao: React.FC<ResultadoAvaliacaoProps> = ({ isOpen, onClose
 
   useEffect(() => {
     if (isOpen) {
-      dialogRef.current?.showModal();
       (async () => {
         if (volunteer?.id) {
           const result = await avaliacaoClient.listByVoluntario(volunteer.id);
-          if (Array.isArray(result) && result.length > 0 && result[0]) {
-            setAssesment(result[0]);
-          }
+          setAssesment(result[0]);
         }
-      })();
+      })()
+      dialogRef.current?.showModal();
     } else {
       dialogRef.current?.close();
     }
   }, [isOpen, volunteer?.id]);
-
-  useEffect(() => {
-    const fetch = async () => {
-      if (!isOpen || !voluntarioId) return;
-      try {
-        const avaliacoes = (await window.api.invoke(
-          'avaliacao:listByVoluntario',
-          voluntarioId
-        )) as any[];
-        if (avaliacoes && avaliacoes.length > 0) {
-          setAvaliacao(avaliacoes[0]);
-        } else {
-          setAvaliacao(null);
-        }
-      } catch (e) {
-        console.error('Erro ao carregar avaliação:', e);
-        setAvaliacao(null);
-      }
-    };
-    fetch();
-  }, [isOpen, voluntarioId]);
 
   const labels = ['RFC', 'IACAP', 'IF', 'PSE', 'Potência TACAP'];
 

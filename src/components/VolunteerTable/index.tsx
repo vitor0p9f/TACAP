@@ -87,9 +87,6 @@ export function VolunteerTable({
   };
 
   const handleAssessmentSubmit = async (data: FormData) => {
-    console.log('Dados da avaliação:', data);
-    console.log('Para o voluntário:', selectedVolunteer?.apelido);
-
     if(selectedVolunteer){
         let total_blows = data.first_round_blows + data.second_round_blows + data.third_round_total_blows
         let iacap = (data.final_heart_rate + data.heart_rate_after_one_minute)/total_blows
@@ -108,10 +105,10 @@ export function VolunteerTable({
 
         if (assessment) {
             showSuccessMessage('Voluntário avaliado com sucesso!');
-            closeModal();
             setVolunteers((prev) => prev.map((v) => (
               v.id === selectedVolunteer.id ? { ...v, realizouAvaliacao: true } : v
             )));
+            setModal(null); // Fecha o modal de avaliação mas mantém o selectedVolunteer
             setShowResultado(true);
         }
     }
@@ -208,7 +205,10 @@ export function VolunteerTable({
       />
       <ResultadoAvaliacao
         isOpen={showResultado}
-        onClose={() => setShowResultado(false)}
+        onClose={() => {
+          setShowResultado(false);
+          setSelectedVolunteer(null); // Limpa o voluntário ao fechar o resultado
+        }}
         volunteer={selectedVolunteer}
       />
     </S.Container>
