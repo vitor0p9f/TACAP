@@ -6,6 +6,7 @@ import { AssessmentModal } from '../modals/AssessmentModal';
 import { Voluntario } from '../../../electron/models/voluntario';
 import { avaliacaoClient } from '../../services/avaliacaoClient';
 import { FormData } from '../forms/assessment';
+import ResultadoAvaliacao from '../ResultadoAvaliacao';
 
 interface VolunteersTableProps {
   setCurrentPage: (page: string) => void;
@@ -22,6 +23,7 @@ export function VolunteerTable({
 
   const [modal, setModal] = useState<'delete' | 'assessment' | null>(null);
   const [selectedVolunteer, setSelectedVolunteer] = useState<Voluntario | null>(null);
+  const [showResultado, setShowResultado] = useState(false);
 
   useEffect(() => {
     const fetchVolunteers = async () => {
@@ -74,7 +76,7 @@ export function VolunteerTable({
     if(selectedVolunteer){
         let total_blows = data.first_round_blows + data.second_round_blows + data.third_round_total_blows
         let iacap = (data.final_heart_rate + data.heart_rate_after_one_minute)/total_blows
-        let power = (total_blows * selectedVolunteer.peso)/1.25
+        let power = (total_blows * (selectedVolunteer.peso ?? 0))/1.25
         let fatigue = ((data.first_round_blows - data.third_roud_latest_seconds_blows) * 100)/data.first_round_blows
         
         let assessment = await avaliacaoClient.create({
@@ -82,7 +84,7 @@ export function VolunteerTable({
             iacap,
             potencia: power,
             if_valor:fatigue,
-            voluntario_id: selectedVolunteer.id,
+            voluntario_id: selectedVolunteer.id!,
             pse: data.rate_of_perceived_exertion,
             rfc: data.final_heart_rate - data.heart_rate_after_one_minute
         })
@@ -90,6 +92,10 @@ export function VolunteerTable({
         if (assessment) {
             showSuccessMessage('Voluntário avaliado com sucesso!');
             closeModal();
+            setVolunteers((prev) => prev.map((v) => (
+              v.id === selectedVolunteer.id ? { ...v, realizouAvaliacao: true } : v
+            )));
+            setShowResultado(true);
         }
     }
   };
@@ -132,6 +138,10 @@ export function VolunteerTable({
                     <button
                       title="Ver avaliação"
                       aria-label={`Ver avaliação de ${volunteer.apelido}`}
+                      onClick={() => {
+                        setSelectedVolunteer(volunteer);
+                        setShowResultado(true);
+                      }}
                     >
                       <FileTextIcon size={18} />
                     </button>
@@ -181,6 +191,10 @@ export function VolunteerTable({
         isOpen={modal === 'assessment'}
         onClose={closeModal}
         onSubmit={handleAssessmentSubmit}
+      />
+      <ResultadoAvaliacao
+        isOpen={showResultado}
+        onClose={() => setShowResultado(false)}
       />
     </S.Container>
   );
