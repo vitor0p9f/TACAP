@@ -6,12 +6,15 @@
   padding: 0;
   max-width: 95vw;
   max-height: 95vh;
-  width: min(650px, 85vw); /* Usa o menor entre 650px e 85% da tela */
+  width: min(650px, 85vw);
   height: fit-content;
+  position: fixed;
+  inset: 0;
+  margin: auto; /* centraliza na tela */
 }
 
 .modal::backdrop {
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.6);
 }
 
 .modalContent {
@@ -30,14 +33,18 @@
   align-items: center;
   border-bottom: 1px solid #eee;
   padding-bottom: 16px;
+  position: relative;
 }
 
 .header h2 {
   margin: 0;
   font-size: 1.5rem;
   color: #333;
-  width: 100%;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
   text-align: center;
+  pointer-events: none; /* evita clique no título sobrepor o botão */
 }
 
 .closeButton {
@@ -52,7 +59,7 @@
 .chartContainer {
   position: relative;
   height: clamp(350px, 45vh, 500px);
-  min-height: 350px; /* Altura mínima para garantir legibilidade */
+  min-height: 350px;
 }
 
 .footer {
@@ -81,11 +88,11 @@
 
 @media (max-width: 768px) {
   .modal {
-    width: 95vw; /* Em telas pequenas, usa quase toda a largura */
+    width: 95vw;
     max-width: 95vw;
   }
   
   .chartContainer {
-    height: clamp(300px, 40vh, 450px); /* Altura menor em mobile */
+    height: clamp(300px, 40vh, 450px);
   }
 }
