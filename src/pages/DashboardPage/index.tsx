@@ -5,6 +5,31 @@ import { Select } from "../../components/select";
 import { ChartOptions } from "chart.js";
 import { Avaliacao } from "../../../electron/models/avaliacao";
 import { PopulationContext } from "../../context/population";
+import {
+  Chart,
+  ScatterController,
+  LineController,
+  PointElement,
+  LineElement,
+  LinearScale,
+  CategoryScale,
+  Tooltip,
+  Title,
+  Legend
+} from 'chart.js';
+
+// Registrar controladores e elementos necessários
+Chart.register(
+  ScatterController,
+  LineController,
+  PointElement,
+  LineElement,
+  LinearScale,
+  CategoryScale,
+  Tooltip,
+  Title,
+  Legend
+);
 
 function getTextValuePairByVariable(assessment: Avaliacao, variable: string){
   
