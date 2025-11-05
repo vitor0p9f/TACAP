@@ -98,6 +98,7 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({setCurrentPage}) => 
         .catch(error => setModalMessage(`Erro ao cadastrar voluntário!\n\n${error}!`))
 
         setIsModalOpen(true)
+        setCurrentPage("Volunteers")
     }
 
     const closeModal = () => {
