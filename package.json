@@ -26,12 +26,11 @@
     "files": [
       "dist/**/*",
       "electron_out/**/*",
-      "node_modules/**/*",
       "package.json"
     ],
     "win": {
       "target": "nsis",
-      "icon": "icon.ico",
+      "icon": "src/assets/capoeirista.png",
       "forceCodeSigning": false
     }
   },
@@ -51,10 +50,10 @@
     "typescript": "^5.9.2",
     "vite": "^7.1.5",
     "vite-plugin-svgr": "^4.5.0",
-    "wait-on": "^9.0.0"
+    "wait-on": "^9.0.0",
+    "@electron/rebuild": "^4.0.1"
   },
   "dependencies": {
-    "@electron/rebuild": "^4.0.1",
     "@phosphor-icons/react": "^2.1.10",
     "@types/better-sqlite3": "^7.6.13",
     "@vitejs/plugin-react": "^5.0.3",

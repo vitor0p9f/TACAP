@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useContext } from 'react';
 import { FileTextIcon, ClipboardIcon, PencilSimpleIcon, TrashIcon } from '@phosphor-icons/react';
 import * as S from './styles';
 import { ConfirmDeleteModal } from '../modals/ConfirmDeleteModal';
@@ -7,6 +7,7 @@ import { Voluntario } from '../../../electron/models/voluntario';
 import { avaliacaoClient } from '../../services/avaliacaoClient';
 import { FormData } from '../forms/assessment';
 import ResultadoAvaliacao from '../ResultadoAvaliacao';
+import { PopulationContext } from '../../context/population';
 
 interface VolunteersTableProps {
   setCurrentPage: (page: string) => void;
@@ -33,6 +34,8 @@ export function VolunteerTable({
 
   const [debouncedSearch, setDebouncedSearch] = useState(searchTerm);
   const isFirstLoad = useRef(true);
+  const populationContext = useContext(PopulationContext)
+
   useEffect(() => {
     const id = setTimeout(() => setDebouncedSearch(searchTerm), 150);
     return () => clearTimeout(id);
@@ -68,12 +71,16 @@ export function VolunteerTable({
   };
 
   const handleConfirmDelete = async () => {
-    if (selectedVolunteer) {
+    if (selectedVolunteer && selectedVolunteer.id) {
       try {
+        let assessments = await avaliacaoClient.listByVoluntario(selectedVolunteer.id)
+        await avaliacaoClient.remove(selectedVolunteer.id)
         await window.api.invoke('voluntario:remove', selectedVolunteer.id);
         setVolunteers(volunteers.filter((v) => v.id !== selectedVolunteer.id));
         showSuccessMessage('Voluntário deletado com sucesso!');
         closeModal();
+        populationContext.removeVolunteer(selectedVolunteer)
+        populationContext.removeAssessment(assessments[0])
       } catch (err) {
         console.error('Erro ao deletar voluntário:', err);
         alert('Ocorreu um erro ao deletar o voluntário.');
@@ -110,6 +117,7 @@ export function VolunteerTable({
             )));
             setModal(null); // Fecha o modal de avaliação mas mantém o selectedVolunteer
             setShowResultado(true);
+            populationContext.addAssessment(assessment)
         }
     }
   };
@@ -145,7 +153,7 @@ export function VolunteerTable({
               <tr key={volunteer.id}>
                 <td>{volunteer.apelido}</td>
                 <td>{volunteer.graduacao}</td>
-                <td>{volunteer.tempo_pratica} ano(s)</td>
+                <td>{volunteer.tempo_pratica}</td>
                 <td>{volunteer.realizouAvaliacao ? 'Sim' : 'Não'}</td>
                 <td className="actions-cell">
                   {volunteer.realizouAvaliacao ? (
