@@ -22,6 +22,7 @@ type PopulationContextType = {
     removeAssessment: (assessment: Avaliacao) => void
     addVolunteer: (volunteer: Voluntario) => void
     addAssessment: (assessment: Avaliacao) => void
+    updateVolunteer: (volunteer: Voluntario) => void
 }
 
 let initial_means_value = {
@@ -41,7 +42,8 @@ export const PopulationContext = createContext<PopulationContextType>({
     removeVolunteer: () => null,
     removeAssessment: () => null,
     addVolunteer: () => null,
-    addAssessment: () => null
+    addAssessment: () => null,
+    updateVolunteer: () => null
 })
 
 async function getAllVolunteers(){
@@ -150,6 +152,12 @@ const PopulationContextProvider: React.FC<PopulationContextProviderProps> = ({ch
     const removeVolunteer = (volunteer: Voluntario) => {
         setAllVolunteers(previous_state => previous_state.filter(v => v.id !== volunteer.id))
     }
+    const updateVolunteer = (volunteer: Voluntario) => {
+        setAllVolunteers(previous_state => previous_state.map((v) => (
+            v.id === volunteer.id ? { ...v, ...volunteer } : v
+        )))
+    }
+
 
     const addAssessment = (assessment: Avaliacao) => {
         setAllAssessments(previous_state => [...previous_state, assessment])
@@ -187,7 +195,8 @@ const PopulationContextProvider: React.FC<PopulationContextProviderProps> = ({ch
             addAssessment,
             addVolunteer,
             removeAssessment,
-            removeVolunteer
+            removeVolunteer,
+            updateVolunteer
         }}>
             {children}
         </PopulationContext.Provider>

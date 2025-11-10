@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
 import { FileTextIcon, ClipboardIcon, PencilSimpleIcon, TrashIcon } from '@phosphor-icons/react';
 import * as S from './styles';
+import { EditVolunteerModal } from '../modals/EditVolunteerModal';
 import { ConfirmDeleteModal } from '../modals/ConfirmDeleteModal';
 import { AssessmentModal } from '../modals/AssessmentModal';
 import { Voluntario } from '../../../electron/models/voluntario';
@@ -28,13 +29,13 @@ export function VolunteerTable({
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const [modal, setModal] = useState<'delete' | 'assessment' | null>(null);
+  const [modal, setModal] = useState<'delete' | 'assessment' | 'edit' | null>(null);
   const [selectedVolunteer, setSelectedVolunteer] = useState<Voluntario | null>(null);
   const [showResultado, setShowResultado] = useState(false);
 
   const [debouncedSearch, setDebouncedSearch] = useState(searchTerm);
   const isFirstLoad = useRef(true);
-  const populationContext = useContext(PopulationContext)
+  const populationContext = useContext(PopulationContext);
 
   useEffect(() => {
     const id = setTimeout(() => setDebouncedSearch(searchTerm), 150);
@@ -93,6 +94,11 @@ export function VolunteerTable({
     setModal('assessment');
   };
 
+  const handleOpenEditModal = (volunteer: Voluntario) => {
+    setSelectedVolunteer(volunteer);
+    setModal('edit');
+  };
+
   const handleAssessmentSubmit = async (data: FormData) => {
     if(selectedVolunteer){
         let total_blows = data.first_round_blows + data.second_round_blows + data.third_round_total_blows
@@ -120,6 +126,13 @@ export function VolunteerTable({
             populationContext.addAssessment(assessment)
         }
     }
+  };
+
+  const handleVolunteerUpdateSuccess = (updatedVolunteer: Voluntario) => {
+    setVolunteers((prev) => prev.map((volunteer) => (
+      volunteer.id === updatedVolunteer.id ? { ...volunteer, ...updatedVolunteer } : volunteer
+    )));
+    populationContext.updateVolunteer(updatedVolunteer);
   };
 
   const closeModal = () => {
@@ -176,6 +189,7 @@ export function VolunteerTable({
                   <button
                     title="Editar"
                     aria-label={`Editar ${volunteer.apelido}`}
+                    onClick={() => handleOpenEditModal(volunteer)}
                   >
                     <PencilSimpleIcon size={18} />
                   </button>
@@ -219,6 +233,14 @@ export function VolunteerTable({
         }}
         volunteer={selectedVolunteer}
       />
+      <EditVolunteerModal
+        isOpen={modal === 'edit'}
+        volunteerId={selectedVolunteer?.id ?? null}
+        onClose={closeModal}
+        onSuccess={handleVolunteerUpdateSuccess}
+        showSuccessMessage={showSuccessMessage}
+      />
     </S.Container>
   );
 }
+

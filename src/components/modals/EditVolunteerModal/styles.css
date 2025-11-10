@@ -1,0 +1,22 @@
+@import '../../forms/registration/style.css';
+
+.edit-modal__form {
+  max-height: 70vh;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+.edit-modal__feedback {
+  min-height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  color: var(--cor-texto-principal);
+}
+
+.edit-modal__error {
+  color: #ff6b6b;
+  font-size: 0.9rem;
+  margin-bottom: 8px;
+}
