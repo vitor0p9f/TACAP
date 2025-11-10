@@ -153,7 +153,7 @@ export function VolunteerTable({
               <tr key={volunteer.id}>
                 <td>{volunteer.apelido}</td>
                 <td>{volunteer.graduacao}</td>
-                <td>{volunteer.tempo_pratica} ano(s)</td>
+                <td>{volunteer.tempo_pratica}</td>
                 <td>{volunteer.realizouAvaliacao ? 'Sim' : 'Não'}</td>
                 <td className="actions-cell">
                   {volunteer.realizouAvaliacao ? (

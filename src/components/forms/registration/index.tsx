@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react"
+import React, { useContext, useEffect, useState } from "react"
 import "./style.css"
 import Input from "../../input"
 import Button from "../../button"
@@ -49,6 +49,8 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({setCurrentPage}) => 
     })
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [modalMessage, setModalMessage] = useState("")
+    const [practice_time_number, setPracticeTimeNumber] = useState("")
+    const [practice_time_string, setPracticeTimeString] = useState("")
     const populationContext = useContext(PopulationContext)
 
     const updateData = (name: string, value: string) => {
@@ -111,6 +113,22 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({setCurrentPage}) => 
         setModalMessage("")
     };
 
+    const onPracticeTimeNumberChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const {name, value} = event.target
+
+        setPracticeTimeNumber(value)
+    }
+
+    const onPracticeTimeStringChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+        const {name, value} = event.target
+
+        setPracticeTimeString(value)
+    }
+
+    useEffect(() => {
+        updateData("practice_time", `${practice_time_number} ${practice_time_string}`)
+    }, [practice_time_number, practice_time_string])
+
     return(
         <>
             <SuccessModal 
@@ -149,33 +167,48 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({setCurrentPage}) => 
                         max={100}
                         onChange={onInputChangeHandler}
                     />
-                    <Input 
-                        label="Tempo de prática"
-                        type="text" 
-                        name="practice_time"
-                        value={formData.practice_time}
-                        required 
-                        onChange={onInputChangeHandler}
-                    />
+                    <div className="Line">
+                        <Input 
+                            label="Tempo de prática"
+                            type="number" 
+                            name="practice_time_number"
+                            value={formData.practice_time.split(" ")[0]}
+                            required 
+                            onChange={onPracticeTimeNumberChange}
+                        />
+                        <Select 
+                            items={[
+                                { text: "Selecione o período", value: "", disabled: true },
+                                { text: "Dias", value: "dias" },
+                                { text: "Meses", value: "meses" },
+                                { text: "Anos", value: "anos" },
+                            ]} 
+                            label="&emsp;"
+                            name="practice_time_string" 
+                            required
+                            value={formData.practice_time.split(" ")[1]}
+                            onChange={onPracticeTimeStringChange}
+                        />
+                    </div>
                     <Select 
                         items={[
                             { text: "Selecione a graduação", value: "", disabled: true },
-                            { text: "Sem corda", value: "sem_corda" },
-                            { text: "Crua (Iniciante)", value: "crua" },
-                            { text: "Verde", value: "verde" },
-                            { text: "Amarela", value: "amarela" },
-                            { text: "Azul", value: "azul" },
-                            { text: "Roxa", value: "roxa" },
-                            { text: "Marrom", value: "marrom" },
-                            { text: "Vermelha", value: "vermelha" },
-                            { text: "Laranja", value: "laranja" },
-                            { text: "Preta", value: "preta" },
-                            { text: "Graduado", value: "graduado" },
-                            { text: "Instrutor", value: "instrutor" },
-                            { text: "Professor", value: "professor" },
-                            { text: "Contra-Mestre", value: "contra_mestre" },
-                            { text: "Mestre", value: "mestre" },
-                            { text: "Grão-Mestre", value: "grao_mestre" }
+                            { text: "Sem corda", value: "Sem corda" },
+                            { text: "Crua (Iniciante)", value: "Crua" },
+                            { text: "Verde", value: "Verde" },
+                            { text: "Amarela", value: "Amarela" },
+                            { text: "Azul", value: "Azul" },
+                            { text: "Roxa", value: "Roxa" },
+                            { text: "Marrom", value: "Marrom" },
+                            { text: "Vermelha", value: "Vermelha" },
+                            { text: "Laranja", value: "Laranja" },
+                            { text: "Preta", value: "Preta" },
+                            { text: "Graduado", value: "Graduado" },
+                            { text: "Instrutor", value: "Instrutor" },
+                            { text: "Professor", value: "Professor" },
+                            { text: "Contra-Mestre", value: "Contra mestre" },
+                            { text: "Mestre", value: "Mestre" },
+                            { text: "Grão-Mestre", value: "Grão mestre" }
                         ]} 
                         label="Graduação"
                         name="graduation" 
