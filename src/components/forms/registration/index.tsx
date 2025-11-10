@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useContext, useState } from "react"
 import "./style.css"
 import Input from "../../input"
 import Button from "../../button"
@@ -6,6 +6,7 @@ import { Select } from "../../select"
 import { voluntarioClient } from "../../../services/voluntarioClient"
 import { SuccessModal } from "../../modals/SuccessModal"
 import { Pages } from "../../../types/pages"
+import { PopulationContext } from "../../../context/population"
 
 const phoneMask = (value: string) => {
     value = value.replace(/\D/g, ""); // Remove all digits
@@ -48,6 +49,7 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({setCurrentPage}) => 
     })
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [modalMessage, setModalMessage] = useState("")
+    const populationContext = useContext(PopulationContext)
 
     const updateData = (name: string, value: string) => {
         if(name.includes(".")){
@@ -94,10 +96,14 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({setCurrentPage}) => 
             peso: Number(formData.weight),
             tempo_pratica: formData.practice_time,
         })
-        .then(_ => setModalMessage("Voluntário cadastrado com sucesso!"))
+        .then(volunter => {
+            setModalMessage("Voluntário cadastrado com sucesso!")
+            populationContext.addVolunteer(volunter)
+        })
         .catch(error => setModalMessage(`Erro ao cadastrar voluntário!\n\n${error}!`))
 
         setIsModalOpen(true)
+        setCurrentPage("Volunteers")
     }
 
     const closeModal = () => {

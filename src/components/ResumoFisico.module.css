@@ -32,7 +32,7 @@
     justify-content: space-between;
     align-items: flex-start;
     border-bottom: 1px solid #eee;
-    padding-bottom: 16px;
+    padding-bottom: 32px;
     position: relative;
   }
   
@@ -68,13 +68,13 @@
   
   .userInfo {
     text-align: center;
-    padding: 16px 0;
+    padding: 8px 0;
   }
   
   .userName {
     font-size: 1.8rem;
     font-weight: 600;
-    margin: 0 0 8px 0; /* Remove margem padrão e adiciona embaixo */
+    margin: 0 ; /* Remove margem padrão e adiciona embaixo */
   }
   
   .userDetails {

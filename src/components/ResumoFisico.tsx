@@ -12,6 +12,7 @@ import {
 } from 'chart.js';
 import styles from './ResumoFisico.module.css';
 import { PopulationContext } from '../context/population';
+import { Avaliacao } from '../../electron/models/avaliacao';
 
 ChartJS.register(
   CategoryScale,
@@ -37,32 +38,28 @@ interface DadosResumo {
   PSE: { individuo: number; populacao: number };
   peso: { individuo: number; populacao: number };
   altura: { individuo: number; populacao: number };
-  BPM: { individuo: number; populacao: number };
 }
-
-const mockUserData = {
-  nome: '—',
-  genero: '—',
-  idade: 0,
-  anosDePratica: 0,
-};
-
-const mockChartData: DadosResumo = {
-  IACAP: { individuo: 7.5, populacao: 6.8 },
-  indiceFadiga: { individuo: 12, populacao: 15 },
-  potenciaTACAP: { individuo: 850, populacao: 780 },
-  recuperacaoFC: { individuo: 50, populacao: 45 },
-  PSE: { individuo: 8, populacao: 7 },
-  peso: { individuo: 75, populacao: 78 },
-  altura: { individuo: 1.78, populacao: 1.75 },
-  BPM: { individuo: 185, populacao: 180 },
-};
 
 const ResumoFisico: React.FC<ResumoFisicoProps> = ({ isOpen, onClose, voluntarioId }) => {
   const dialogRef = useRef<HTMLDialogElement>(null);
-  const [userData, setUserData] = useState(mockUserData);
-  const [chartValues, setChartValues] = useState<DadosResumo>(mockChartData);
+  const [userData, setUserData] = useState({
+    nome: '—',
+    genero: '—',
+    idade: 0,
+    tempoDePratica: 0,
+    dataAvaliacao: ""
+  });
   const population = useContext(PopulationContext);
+  const [chartValues, setChartValues] = useState<DadosResumo>({
+    IACAP: { individuo: 0, populacao: population.means.iacap },
+    indiceFadiga: { individuo: 0, populacao: population.means.if_value },
+    potenciaTACAP: { individuo: 0, populacao: population.means.power },
+    recuperacaoFC: { individuo: 0, populacao: population.means.rfc },
+    PSE: { individuo: 0, populacao: population.means.pse },
+    peso: { individuo: 0, populacao: population.means.weight },
+    altura: { individuo: 0, populacao: population.means.height },
+  });
+  
 
   useEffect(() => {
     if (isOpen) {
@@ -81,14 +78,15 @@ const ResumoFisico: React.FC<ResumoFisicoProps> = ({ isOpen, onClose, voluntario
           window.api.invoke('avaliacao:listByVoluntario', voluntarioId),
         ]);
         const vol: any = volResp as any;
-        const ultima = Array.isArray(avaliacoes) && avaliacoes.length > 0 ? avaliacoes[0] : null;
+        const ultima: Avaliacao = Array.isArray(avaliacoes) && avaliacoes.length > 0 ? avaliacoes[0] : null;
 
         if (vol) {
           setUserData({
             nome: vol.nome ?? '—',
             genero: vol.genero ?? '—',
             idade: vol.idade ?? 0,
-            anosDePratica: Number(vol.tempo_pratica) || 0,
+            tempoDePratica: vol.tempo_pratica || "",
+            dataAvaliacao: ultima.created_at || ""
           });
         }
 
@@ -99,9 +97,8 @@ const ResumoFisico: React.FC<ResumoFisicoProps> = ({ isOpen, onClose, voluntario
             potenciaTACAP: { individuo: ultima?.potencia ?? 0, populacao: population.means.power || 0 },
             recuperacaoFC: { individuo: ultima?.rfc ?? 0, populacao: population.means.rfc || 0 },
             PSE: { individuo: ultima?.pse ?? 0, populacao: population.means.pse || 0 },
-            peso: { individuo: vol?.peso ?? 0, populacao: 0 },
-            altura: { individuo: vol?.altura ?? 0, populacao: 0 },
-            BPM: { individuo: ultima?.rfc ?? 0, populacao: population.means.rfc || 0 },
+            peso: { individuo: vol?.peso ?? 0, populacao: population.means.weight || 0 },
+            altura: { individuo: vol?.altura ?? 0, populacao: population.means.height || 0 }
           });
         }
       } catch (e) {
@@ -111,7 +108,7 @@ const ResumoFisico: React.FC<ResumoFisicoProps> = ({ isOpen, onClose, voluntario
     fetch();
   }, [isOpen, voluntarioId]);
   
-  const labels = ['IACAP', 'Índice de fadiga', 'Potência TACAP', 'Recuperação FC', 'PSE', 'Peso (kg)', 'Altura (m)', 'BPM'];
+  const labels = ['IACAP', 'Índice de fadiga', 'Potência TACAP', 'Recuperação FC', 'PSE', 'Peso (kg)', 'Altura (m)'];
   
   const chartData = {
     labels,
@@ -125,8 +122,7 @@ const ResumoFisico: React.FC<ResumoFisicoProps> = ({ isOpen, onClose, voluntario
           chartValues.recuperacaoFC.individuo,
           chartValues.PSE.individuo,
           chartValues.peso.individuo,
-          chartValues.altura.individuo,
-          chartValues.BPM.individuo,
+          chartValues.altura.individuo
         ],
         backgroundColor: 'rgba(54, 162, 235, 0.6)',
         borderColor: 'rgba(54, 162, 235, 1)',
@@ -142,7 +138,6 @@ const ResumoFisico: React.FC<ResumoFisicoProps> = ({ isOpen, onClose, voluntario
           chartValues.PSE.populacao,
           chartValues.peso.populacao,
           chartValues.altura.populacao,
-          chartValues.BPM.populacao,
         ],
         backgroundColor: 'rgba(255, 99, 132, 0.6)',
         borderColor: 'rgba(255, 99, 132, 1)',
@@ -176,7 +171,7 @@ const ResumoFisico: React.FC<ResumoFisicoProps> = ({ isOpen, onClose, voluntario
         <header className={styles.header}>
             <div className={styles.headerTitleContainer}>
                 <h2>Resumo físico</h2>
-                <p className={styles.headerDate}>30/07/2024</p>
+                <p className={styles.headerDate}>{userData.dataAvaliacao}</p>
             </div>
           <button onClick={onClose} className={styles.closeButton}>×</button>
         </header>
@@ -184,15 +179,13 @@ const ResumoFisico: React.FC<ResumoFisicoProps> = ({ isOpen, onClose, voluntario
         <section className={styles.userInfo}>
           <h3 className={styles.userName}>{userData.nome}</h3>
           <p className={styles.userDetails}>
-            {userData.genero}, {userData.idade}, {userData.anosDePratica} anos de prática
+            {userData.genero}, {userData.idade}, {userData.tempoDePratica}
           </p>
         </section>
 
         <main className={styles.chartContainer}>
           <Bar options={chartOptions} data={chartData} />
         </main>
-
-        {/* footer removido conforme solicitado */}
       </div>
     </dialog>
   );

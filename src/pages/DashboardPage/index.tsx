@@ -17,6 +17,7 @@ import {
   Title,
   Legend
 } from 'chart.js';
+import { Voluntario } from "../../../electron/models/voluntario";
 
 // Registrar controladores e elementos necessários
 Chart.register(
@@ -31,7 +32,7 @@ Chart.register(
   Legend
 );
 
-function getTextValuePairByVariable(assessment: Avaliacao, variable: string){
+function getTextValuePairByVariable(volunteer: Voluntario, assessment: Avaliacao, variable: string){
   
   switch (variable) {
     case "iacap":
@@ -45,6 +46,12 @@ function getTextValuePairByVariable(assessment: Avaliacao, variable: string){
 
     case "pse":
       return ["Percepção subjetiva de esforço: ", assessment.pse]
+
+    case "weight":
+      return ["Peso: ", volunteer.peso]
+
+    case "height":
+      return ["Altura: ", volunteer.altura]
   
     default:
       return []
@@ -57,6 +64,8 @@ function getMeanByVariable(means: any, variable: string): number | null {
     case "tacap_power": return means?.power ?? null;
     case "rfc": return means?.rfc ?? null;
     case "pse": return means?.pse ?? null;
+    case "weight": return means?.weight ?? null;
+    case "height": return means?.height ?? null;
     default: return null;
   }
 }
@@ -70,20 +79,24 @@ const DashboardPage: React.FC = () => {
     useEffect(() => {
       if (!currentShowingData) return;
 
-      const points = population.all_volunteers.map((v, index) => {
-        if (!v.id || !population.all_assessments[v.id]) return null;
+      const points = population.all_assessments.map((assessment, index) => {
+        if (!assessment) return null;
 
-        const pair = getTextValuePairByVariable(population.all_assessments[v.id], currentShowingData);
+        const volunteer = population.all_volunteers.filter(v => v.id == assessment.voluntario_id)[0]
+
+        if (!volunteer) return null
+
+        const pair = getTextValuePairByVariable(volunteer, assessment, currentShowingData);
 
         return {
           x: index + 1,
           y: pair[1],
-          name: v.nome,
-          graduation: v.graduacao,
-          practice_time: v.tempo_pratica,
+          name: volunteer.nome,
+          graduation: volunteer.graduacao,
+          practice_time: volunteer.tempo_pratica,
           label: pair[0],
         };
-      }).filter(Boolean)
+      }).filter(p => p !== null && p !== undefined)
       // 🔹 Reindexa os pontos após o filtro
       .map((p, i) => ({
         ...p,
@@ -109,18 +122,19 @@ const DashboardPage: React.FC = () => {
           data: chartPoints,
           backgroundColor: 'rgb(255, 99, 132)',
           showLine: false,
+          pointRadius: 5,
         },
         {
           label: 'Média da população',
-          data: [
-            { x: 0, y: mean },
-            { x: chartPoints.length + 1, y: mean },
-          ],
-          borderColor: 'rgb(54, 162, 235)',
-          borderWidth: 2,
-          fill: false,
+          data: Array.from({ length: chartPoints.length + 2 }, (_, i) => ({
+            x: i,
+            y: mean
+          })),
           type: 'line' as const,
-          pointRadius: 0,
+          pointRadius: 4,
+          pointBackgroundColor: "transparent",
+          pointBorderColor: "transparent",
+          borderColor: 'rgb(132, 88, 255)',
         }
       ]
     };
@@ -145,16 +159,26 @@ const DashboardPage: React.FC = () => {
             }
           },
           tooltip: {
+            bodyFont: {
+              size: 14, // tamanho do texto do corpo
+            },
             callbacks: {
+              title: () => null,
               label: ctx => {
-                let data = ctx.raw as any
-
-                return [
-                  `Nome: ${data.name}`,
-                  `Tempo de prática: ${data.practice_time}`,
-                  `Graduação: ${data.graduation}`,
-                  `${data.label}${data.y}`
-                ]
+                if (ctx.dataset.label === 'Voluntários') {
+                  const data = ctx.raw as any;
+                  return [
+                    `Nome: ${data.name}`,
+                    `Tempo de prática: ${data.practice_time}`,
+                    `Graduação: ${data.graduation}`,
+                    `${data.label}${data.y}`,
+                  ];
+                }
+      
+                // se for a linha média, mostra apenas valor
+                if (ctx.dataset.label === 'Média da população') {
+                  return `Média da população: ${mean}`;
+                }      
               }
             }
           }
@@ -189,6 +213,14 @@ const DashboardPage: React.FC = () => {
                 {
                   text: "Percepção subjetiva de esforço",
                   value: "pse"
+                },
+                {
+                  text: "Peso",
+                  value: "weight"
+                },
+                {
+                  text: "Altura",
+                  value: "height"
                 }
               ]} 
             />
