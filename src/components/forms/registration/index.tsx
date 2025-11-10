@@ -50,7 +50,7 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({setCurrentPage}) => 
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [modalMessage, setModalMessage] = useState("")
     const [practice_time_number, setPracticeTimeNumber] = useState("")
-    const [practice_time_string, setPracticeTimeString] = useState("")
+    const [practice_time_unit, setPracticeTimeUnit] = useState("")
     const populationContext = useContext(PopulationContext)
 
     const updateData = (name: string, value: string) => {
@@ -114,20 +114,26 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({setCurrentPage}) => 
     };
 
     const onPracticeTimeNumberChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const {name, value} = event.target
-
-        setPracticeTimeNumber(value)
+        setPracticeTimeNumber(event.target.value)
     }
 
-    const onPracticeTimeStringChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-        const {name, value} = event.target
-
-        setPracticeTimeString(value)
+    const onPracticeTimeUnitChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+        setPracticeTimeUnit(event.target.value)
     }
 
     useEffect(() => {
-        updateData("practice_time", `${practice_time_number} ${practice_time_string}`)
-    }, [practice_time_number, practice_time_string])
+        setFormData(previousData => {
+            const nextPracticeTime = practice_time_number && practice_time_unit
+                ? `${practice_time_number} ${practice_time_unit}`
+                : ""
+
+            if (previousData.practice_time === nextPracticeTime) {
+                return previousData
+            }
+
+            return { ...previousData, practice_time: nextPracticeTime }
+        })
+    }, [practice_time_number, practice_time_unit])
 
     return(
         <>
@@ -172,22 +178,22 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({setCurrentPage}) => 
                             label="Tempo de prática"
                             type="number" 
                             name="practice_time_number"
-                            value={formData.practice_time.split(" ")[0]}
+                            value={practice_time_number}
+                            min={0}
                             required 
                             onChange={onPracticeTimeNumberChange}
                         />
                         <Select 
                             items={[
-                                { text: "Selecione o período", value: "", disabled: true },
-                                { text: "Dias", value: "dias" },
+                                { text: "Selecione a unidade", value: "", disabled: true },
                                 { text: "Meses", value: "meses" },
                                 { text: "Anos", value: "anos" },
                             ]} 
-                            label="&emsp;"
-                            name="practice_time_string" 
+                            label="Unidade"
+                            name="practice_time_unit" 
                             required
-                            value={formData.practice_time.split(" ")[1]}
-                            onChange={onPracticeTimeStringChange}
+                            value={practice_time_unit}
+                            onChange={onPracticeTimeUnitChange}
                         />
                     </div>
                     <Select 

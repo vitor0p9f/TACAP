@@ -65,6 +65,29 @@ const createDefaultFormState = (): FormState => ({
   contact: { ...DEFAULT_CONTACT },
 });
 
+const normalizePracticeTimeUnit = (unit: string) => {
+  if (!unit) return '';
+  const normalized = unit.trim().toLowerCase();
+
+  if (normalized.startsWith('mes')) return 'meses';
+  if (normalized.startsWith('ano')) return 'anos';
+
+  return '';
+};
+
+const getPracticeTimeParts = (value: string | null | undefined) => {
+  if (!value) return { number: '', unit: '' };
+
+  const trimmed = value.trim();
+  if (!trimmed) return { number: '', unit: '' };
+
+  const [numberPart, unitPart] = trimmed.split(/\s+/, 2);
+  return {
+    number: numberPart ?? '',
+    unit: normalizePracticeTimeUnit(unitPart ?? ''),
+  };
+};
+
 const parseJSONField = <T,>(value: string | undefined | null, fallback: T): T => {
   if (!value) return fallback;
   try {
@@ -92,6 +115,8 @@ export function EditVolunteerModal({
   showSuccessMessage,
 }: EditVolunteerModalProps) {
   const [formData, setFormData] = useState<FormState>(() => createDefaultFormState());
+  const [practiceTimeNumber, setPracticeTimeNumber] = useState('');
+  const [practiceTimeUnit, setPracticeTimeUnit] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -108,6 +133,8 @@ export function EditVolunteerModal({
       if (!volunteerId) {
         setLoadError('Nenhum voluntário selecionado para edição.');
         setFormData(createDefaultFormState());
+        setPracticeTimeNumber('');
+        setPracticeTimeUnit('');
         return;
       }
 
@@ -121,12 +148,17 @@ export function EditVolunteerModal({
 
         const address = parseJSONField<Address>(volunteer.endereco, DEFAULT_ADDRESS);
         const contact = parseJSONField<Contact>(volunteer.contato, DEFAULT_CONTACT);
+        const practiceTime = volunteer.tempo_pratica ?? '';
+        const practiceTimeParts = getPracticeTimeParts(practiceTime);
+
+        setPracticeTimeNumber(practiceTimeParts.number);
+        setPracticeTimeUnit(practiceTimeParts.unit);
 
         setFormData({
           name: volunteer.nome ?? '',
           nickname: volunteer.apelido ?? '',
           age: volunteer.idade?.toString() ?? '',
-          practice_time: volunteer.tempo_pratica ?? '',
+          practice_time: practiceTime,
           graduation: volunteer.graduacao ?? '',
           gender: volunteer.genero ?? '',
           weight: volunteer.peso?.toString() ?? '',
@@ -154,11 +186,31 @@ export function EditVolunteerModal({
   useEffect(() => {
     if (!isOpen) {
       setFormData(createDefaultFormState());
+      setPracticeTimeNumber('');
+      setPracticeTimeUnit('');
       setLoadError(null);
       setSubmitError(null);
       setIsSubmitting(false);
     }
   }, [isOpen]);
+
+  useEffect(() => {
+    setFormData((previousData) => {
+      const nextPracticeTime =
+        practiceTimeNumber && practiceTimeUnit
+          ? `${practiceTimeNumber} ${practiceTimeUnit}`
+          : '';
+
+      if (previousData.practice_time === nextPracticeTime) {
+        return previousData;
+      }
+
+      return {
+        ...previousData,
+        practice_time: nextPracticeTime,
+      };
+    });
+  }, [practiceTimeNumber, practiceTimeUnit]);
 
   const updateData = (name: string, value: string) => {
     setFormData((previousData) => {
@@ -268,11 +320,24 @@ export function EditVolunteerModal({
         <div className="Line">
           <Input
             label="Tempo de prática"
-            type="text"
-            name="practice_time"
-            value={formData.practice_time}
+            type="number"
+            name="practice_time_number"
+            value={practiceTimeNumber}
+            min={0}
             required
-            onChange={onInputChangeHandler}
+            onChange={(event) => setPracticeTimeNumber(event.target.value)}
+          />
+          <Select
+            items={[
+              { text: 'Selecione a unidade', value: '', disabled: true },
+              { text: 'Meses', value: 'meses' },
+              { text: 'Anos', value: 'anos' },
+            ]}
+            label="Unidade"
+            name="practice_time_unit"
+            required
+            value={practiceTimeUnit}
+            onChange={(event) => setPracticeTimeUnit(event.target.value)}
           />
           <Select
             items={[

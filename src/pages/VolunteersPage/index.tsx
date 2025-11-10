@@ -19,6 +19,7 @@ export function VolunteersPage({
   const [searchTerm, setSearchTerm] = useState("");
   const [modalResumo, setModalResumo] = useState<{open: boolean, voluntarioId: number | null}>({open: false, voluntarioId: null});
   const [modalResultado, setModalResultado] = useState<{open: boolean, voluntarioId: number | null}>({open: false, voluntarioId: null});
+  const isDevelopment = import.meta.env.DEV;
 
   const showSuccessMessage = (message: string) => {
     setSuccessMessage(message);
@@ -29,9 +30,37 @@ export function VolunteersPage({
     setIsSuccessModalOpen(false);
   };
 
+  const handleSeedDatabase = async () => {
+    const confirmed = window.confirm(
+      'Isso irá apagar e recriar todos os dados de teste. Deseja continuar?'
+    );
+
+    if (!confirmed) return;
+
+    try {
+      const response = await window.api.invoke('database:seed') as { success: boolean; message: string };
+
+      if (response?.success) {
+        alert(response.message);
+        window.location.reload();
+      } else {
+        alert(`Erro: ${response?.message ?? 'Não foi possível popular o banco.'}`);
+      }
+    } catch (error) {
+      console.error('Erro ao chamar API de seed:', error);
+      alert('Ocorreu um erro inesperado. Verifique o console.');
+    }
+  };
+
   return (
     <S.Container>
       <Header onExportSuccess={showSuccessMessage} onSearchChange={setSearchTerm} />
+
+      {isDevelopment && (
+        <div style={{ padding: '10px', background: '#fff' }}>
+          <button onClick={handleSeedDatabase}>[DEV] Popular Banco com Dados Falsos</button>
+        </div>
+      )}
 
       <VolunteerTable
         setCurrentPage={setCurrentPage}

@@ -35,7 +35,6 @@
     }
   },
   "devDependencies": {
-    "@faker-js/faker": "^10.1.0",
     "@types/node": "^24.5.2",
     "@types/react": "^19.1.13",
     "@types/react-dom": "^19.1.9",
@@ -64,6 +63,7 @@
     "react-hook-form": "^7.64.0",
     "styled-components": "^6.1.19",
     "chart.js": "^4.4.3",
-    "react-chartjs-2": "^5.2.0"
+    "react-chartjs-2": "^5.2.0",
+    "@faker-js/faker": "^10.1.0"
   }
 }
