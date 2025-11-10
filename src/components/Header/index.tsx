@@ -43,9 +43,6 @@ export function Header({ onExportSuccess, onSearchChange }: HeaderProps) {
         <button title="Filtrar">
           <FunnelIcon size={22} />
         </button>
-        <button title="Importar dados">
-          <UploadSimpleIcon size={22} />
-        </button>
         <button title="Exportar dados para CSV" onClick={handleExportClick}>
           <UploadSimpleIcon size={22} />
         </button>
