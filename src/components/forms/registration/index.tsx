@@ -139,6 +139,8 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({setCurrentPage}) => 
                         name="age" 
                         required 
                         value={formData.age}
+                        min={5}
+                        max={100}
                         onChange={onInputChangeHandler}
                     />
                     <Input 
@@ -191,21 +193,25 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({setCurrentPage}) => 
                         onChange={onSelectChangeHadler}
                     />
                     <Input 
-                        label="Peso" 
+                        label="Peso (Kg)" 
                         type="number" 
                         name="weight" 
                         required 
                         value={formData.weight} 
-                        min={0} 
+                        min={15}
+                        max={200}
+                        step={0.01} 
                         onChange={onInputChangeHandler}
                     />
                     <Input 
-                        label="Altura" 
+                        label="Altura (m)" 
                         type="number" 
                         name="height" 
                         required 
                         value={formData.height} 
-                        min={0} 
+                        min={1}
+                        max={2.5}
+                        step={0.01} 
                         onChange={onInputChangeHandler}
                     />
                 </div>
