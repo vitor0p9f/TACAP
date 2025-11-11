@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useContext } from 'react';
+import React, { useState, useEffect, useRef, useContext, useMemo } from 'react';
 import { FileTextIcon, ClipboardIcon, PencilSimpleIcon, TrashIcon } from '@phosphor-icons/react';
 import * as S from './styles';
 import { EditVolunteerModal } from '../modals/EditVolunteerModal';
@@ -9,11 +9,13 @@ import { avaliacaoClient } from '../../services/avaliacaoClient';
 import { FormData } from '../forms/assessment';
 import ResultadoAvaliacao from '../ResultadoAvaliacao';
 import { PopulationContext } from '../../context/population';
+import { FilterOptions } from '../modals/FilterModal';
 
 interface VolunteersTableProps {
   setCurrentPage: (page: string) => void;
   showSuccessMessage: (message: string) => void;
   searchTerm?: string;
+  filters?: FilterOptions;
   openResumoFisico?: (voluntarioId: number) => void;
   openResultadoAvaliacao?: (voluntarioId: number) => void;
 }
@@ -22,6 +24,7 @@ export function VolunteerTable({
   setCurrentPage,
   showSuccessMessage,
   searchTerm = "",
+  filters,
   openResumoFisico,
   openResultadoAvaliacao,
 }: VolunteersTableProps) {
@@ -140,6 +143,60 @@ export function VolunteerTable({
     setSelectedVolunteer(null);
   };
 
+  // Função para extrair anos da string de tempo de prática
+  const parseYearsFromTempoPratica = (tempoPratica?: string): number => {
+    if (!tempoPratica) return 0;
+    const match = tempoPratica.match(/(\d+)/);
+    return match ? parseInt(match[1], 10) : 0;
+  };
+
+  // Aplicar filtros aos voluntários
+  const filteredVolunteers = useMemo(() => {
+    if (!filters) return volunteers;
+
+    return volunteers.filter((volunteer) => {
+      // Filtro de graduação
+      if (filters.graduacao.length > 0 && volunteer.graduacao) {
+        if (!filters.graduacao.includes(volunteer.graduacao)) {
+          return false;
+        }
+      }
+
+      // Filtro de avaliação realizada
+      if (filters.realizouAvaliacao !== null) {
+        const realizou = volunteer.realizouAvaliacao === true;
+        if (filters.realizouAvaliacao === 'sim' && !realizou) {
+          return false;
+        }
+        if (filters.realizouAvaliacao === 'nao' && realizou) {
+          return false;
+        }
+      }
+
+      // Filtro de tempo de prática
+      if (filters.tempoPratica !== null && volunteer.tempo_pratica) {
+        const anos = parseYearsFromTempoPratica(volunteer.tempo_pratica);
+        
+        switch (filters.tempoPratica) {
+          case 'menos-1':
+            if (anos >= 1) return false;
+            break;
+          case '1-3':
+            if (anos < 1 || anos > 3) return false;
+            break;
+          case '3-5':
+            if (anos < 3 || anos > 5) return false;
+            break;
+          case 'mais-5':
+            if (anos <= 5) return false;
+            break;
+        }
+      }
+
+      return true;
+    });
+  }, [volunteers, filters]);
+
   if (isLoading) {
     return <S.Container>Carregando voluntários...</S.Container>;
   }
@@ -162,7 +219,14 @@ export function VolunteerTable({
             </tr>
           </thead>
           <tbody>
-            {volunteers.map((volunteer) => (
+            {filteredVolunteers.length === 0 ? (
+              <tr>
+                <td colSpan={5} style={{ textAlign: 'center', padding: '40px', color: '#9aa9b3' }}>
+                  Nenhum voluntário encontrado com os filtros aplicados.
+                </td>
+              </tr>
+            ) : (
+              filteredVolunteers.map((volunteer) => (
               <tr key={volunteer.id}>
                 <td>{volunteer.apelido}</td>
                 <td>{volunteer.graduacao}</td>
@@ -202,7 +266,8 @@ export function VolunteerTable({
                   </button>
                 </td>
               </tr>
-            ))}
+              ))
+            )}
           </tbody>
         </table>
       </S.TableWrapper>

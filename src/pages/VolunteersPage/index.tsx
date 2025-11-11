@@ -3,6 +3,7 @@ import { Header } from '../../components/Header';
 import { VolunteerTable } from '../../components/VolunteerTable';
 import { SuccessModal } from '../../components/modals/SuccessModal';
 import ResumoFisico from '../../components/ResumoFisico';
+import { FilterModal, FilterOptions } from '../../components/modals/FilterModal';
 import * as S from './styles';
 
 interface VolunteersPageProps {
@@ -19,6 +20,12 @@ export function VolunteersPage({
   const [searchTerm, setSearchTerm] = useState("");
   const [modalResumo, setModalResumo] = useState<{open: boolean, voluntarioId: number | null}>({open: false, voluntarioId: null});
   const [modalResultado, setModalResultado] = useState<{open: boolean, voluntarioId: number | null}>({open: false, voluntarioId: null});
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
+  const [filters, setFilters] = useState<FilterOptions>({
+    graduacao: [],
+    realizouAvaliacao: null,
+    tempoPratica: null,
+  });
   const isDevelopment = import.meta.env.DEV;
 
   const showSuccessMessage = (message: string) => {
@@ -52,9 +59,22 @@ export function VolunteersPage({
     }
   };
 
+  const handleApplyFilter = (newFilters: FilterOptions) => {
+    setFilters(newFilters);
+  };
+
+  const hasActiveFilters = filters.graduacao.length > 0 || 
+                          filters.realizouAvaliacao !== null || 
+                          filters.tempoPratica !== null;
+
   return (
     <S.Container>
-      <Header onExportSuccess={showSuccessMessage} onSearchChange={setSearchTerm} />
+      <Header 
+        onExportSuccess={showSuccessMessage} 
+        onSearchChange={setSearchTerm}
+        onFilterClick={() => setIsFilterModalOpen(true)}
+        hasActiveFilters={hasActiveFilters}
+      />
 
       {isDevelopment && (
         <div style={{ padding: '10px', background: '#fff' }}>
@@ -66,6 +86,7 @@ export function VolunteersPage({
         setCurrentPage={setCurrentPage}
         showSuccessMessage={showSuccessMessage}
         searchTerm={searchTerm}
+        filters={filters}
         openResumoFisico={(id: number) => setModalResumo({open: true, voluntarioId: id})}
         openResultadoAvaliacao={(id: number) => setModalResultado({open: true, voluntarioId: id})}
       />
@@ -80,6 +101,13 @@ export function VolunteersPage({
         isOpen={modalResumo.open}
         onClose={() => setModalResumo({open: false, voluntarioId: null})}
         voluntarioId={modalResumo.voluntarioId}
+      />
+
+      <FilterModal
+        isOpen={isFilterModalOpen}
+        onClose={() => setIsFilterModalOpen(false)}
+        onApplyFilter={handleApplyFilter}
+        currentFilters={filters}
       />
     </S.Container>
   );

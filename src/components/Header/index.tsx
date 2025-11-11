@@ -10,9 +10,11 @@ interface ExportResult {
 interface HeaderProps {
   onExportSuccess: (message: string) => void;
   onSearchChange?: (term: string) => void;
+  onFilterClick?: () => void;
+  hasActiveFilters?: boolean;
 }
 
-export function Header({ onExportSuccess, onSearchChange }: HeaderProps) {
+export function Header({ onExportSuccess, onSearchChange, onFilterClick, hasActiveFilters }: HeaderProps) {
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onSearchChange?.(e.target.value);
   };
@@ -40,9 +42,13 @@ export function Header({ onExportSuccess, onSearchChange }: HeaderProps) {
         <input type="search" placeholder="Busca..." onChange={handleSearchChange} />
       </S.SearchBarWrapper>
       <S.HeaderActions>
-        <button title="Filtrar">
+        <S.FilterButton 
+          title="Filtrar" 
+          onClick={onFilterClick}
+          $hasActiveFilters={hasActiveFilters}
+        >
           <FunnelIcon size={22} />
-        </button>
+        </S.FilterButton>
         <button title="Exportar dados para CSV" onClick={handleExportClick}>
           <UploadSimpleIcon size={22} />
         </button>
