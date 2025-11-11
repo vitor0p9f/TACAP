@@ -29,7 +29,7 @@ export function Header({ onExportSuccess, onSearchChange, onFilterClick, hasActi
         onExportSuccess(result.message); // Notifica o componente pai
       } else {
         console.error("Falha na exportação:", result.message);
-        alert("Ocorreu um erro inesperado ao tentar exportar os dados.");
+        alert(result.message);
       }
     } catch (error) {
       console.error("Erro crítico ao exportar:", error);
