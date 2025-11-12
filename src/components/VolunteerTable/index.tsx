@@ -53,7 +53,13 @@ export function VolunteerTable({
           "voluntario:list",
           debouncedSearch
         )) as Voluntario[];
-        setVolunteers(fetchedVolunteers);
+
+        const volunteersWithBooleanFlag = fetchedVolunteers.map((v) => ({
+          ...v,
+          realizouAvaliacao: Boolean(v.realizouAvaliacao),
+        }));
+
+        setVolunteers(volunteersWithBooleanFlag);
         setError(null);
       } catch (err) {
         console.error('Erro ao buscar voluntários:', err);
@@ -108,26 +114,26 @@ export function VolunteerTable({
         let iacap = (data.final_heart_rate + data.heart_rate_after_one_minute)/total_blows
         let power = (total_blows * (selectedVolunteer.peso ?? 0))/1.25
         let fatigue = ((data.first_round_blows - data.third_roud_latest_seconds_blows) * 100)/data.first_round_blows
-        
-        let assessment = await avaliacaoClient.create({
-            golpes: total_blows,
-            iacap,
-            potencia: power,
-            if_valor:fatigue,
-            voluntario_id: selectedVolunteer.id!,
-            pse: data.rate_of_perceived_exertion,
-            rfc: data.final_heart_rate - data.heart_rate_after_one_minute
-        })
 
-        if (assessment) {
+      let assessment = await avaliacaoClient.create({
+        golpes: total_blows,
+        iacap,
+        potencia: power,
+        if_valor:fatigue,
+        voluntario_id: selectedVolunteer.id!,
+        pse: data.rate_of_perceived_exertion,
+            rfc: data.final_heart_rate - data.heart_rate_after_one_minute
+      })
+
+      if (assessment) {
             showSuccessMessage('Voluntário avaliado com sucesso!');
             setVolunteers((prev) => prev.map((v) => (
               v.id === selectedVolunteer.id ? { ...v, realizouAvaliacao: true } : v
             )));
             setModal(null); // Fecha o modal de avaliação mas mantém o selectedVolunteer
             setShowResultado(true);
-            populationContext.addAssessment(assessment)
-        }
+        populationContext.addAssessment(assessment)
+      }
     }
   };
 
@@ -145,12 +151,27 @@ export function VolunteerTable({
 
   // Função para extrair anos da string de tempo de prática
   const parseYearsFromTempoPratica = (tempoPratica?: string): number => {
-    if (!tempoPratica) return 0;
-    const match = tempoPratica.match(/(\d+)/);
-    return match ? parseInt(match[1], 10) : 0;
-  };
+    if (!tempoPratica) return 0
 
-  // Aplicar filtros aos voluntários
+    const tempoStr = String(tempoPratica).trim().toLowerCase()
+
+    const patterns = [
+      /(\d+\.?\d*)\s*anos?/,
+      /(\d+\.?\d*)\s*years?/,
+      /^(\d+\.?\d*)$/,
+    ]
+
+    for (const pattern of patterns) {
+      const match = tempoStr.match(pattern)
+      if (match) {
+        const value = parseFloat(match[1])
+        return isNaN(value) ? 0 : value
+      }
+    }
+
+    return 0
+  }
+
   const filteredVolunteers = useMemo(() => {
     if (!filters) return volunteers;
 
@@ -173,22 +194,21 @@ export function VolunteerTable({
         }
       }
 
-      // Filtro de tempo de prática
-      if (filters.tempoPratica !== null && volunteer.tempo_pratica) {
+      if (filters.tempoPratica !== null) {
         const anos = parseYearsFromTempoPratica(volunteer.tempo_pratica);
-        
+
         switch (filters.tempoPratica) {
           case 'menos-1':
             if (anos >= 1) return false;
             break;
           case '1-3':
-            if (anos < 1 || anos > 3) return false;
+            if (anos < 1 || anos >= 3) return false;
             break;
           case '3-5':
-            if (anos < 3 || anos > 5) return false;
+            if (anos < 3 || anos >= 5) return false;
             break;
           case 'mais-5':
-            if (anos <= 5) return false;
+            if (anos < 5) return false;
             break;
         }
       }
@@ -227,45 +247,45 @@ export function VolunteerTable({
               </tr>
             ) : (
               filteredVolunteers.map((volunteer) => (
-              <tr key={volunteer.id}>
-                <td>{volunteer.apelido}</td>
-                <td>{volunteer.graduacao}</td>
-                <td>{volunteer.tempo_pratica}</td>
-                <td>{volunteer.realizouAvaliacao ? 'Sim' : 'Não'}</td>
+                <tr key={volunteer.id}>
+                  <td>{volunteer.apelido}</td>
+                  <td>{volunteer.graduacao}</td>
+                  <td>{volunteer.tempo_pratica}</td>
+                  <td>{volunteer.realizouAvaliacao ? 'Sim' : 'Não'}</td>
                 <td className="actions-cell">
-                  {volunteer.realizouAvaliacao ? (
-                    <button
+                    {volunteer.realizouAvaliacao ? (
+                      <button
                       title="Resumo físico"
-                      aria-label={`Resumo físico de ${volunteer.apelido}`}
+                        aria-label={`Resumo físico de ${volunteer.apelido}`}
                       onClick={() => openResumoFisico && volunteer.id && openResumoFisico(volunteer.id)}
-                    >
-                      <FileTextIcon size={18} />
-                    </button>
-                  ) : (
-                    <button
+                      >
+                        <FileTextIcon size={18} />
+                      </button>
+                    ) : (
+                      <button
                       title="Realizar avaliação"
-                      aria-label={`Realizar avaliação de ${volunteer.apelido}`}
-                      onClick={() => handleOpenAssessmentModal(volunteer)}
-                    >
-                      <ClipboardIcon size={18} />
-                    </button>
-                  )}
-                  <button
+                        aria-label={`Realizar avaliação de ${volunteer.apelido}`}
+                        onClick={() => handleOpenAssessmentModal(volunteer)}
+                      >
+                        <ClipboardIcon size={18} />
+                      </button>
+                    )}
+                    <button
                     title="Editar"
-                    aria-label={`Editar ${volunteer.apelido}`}
-                    onClick={() => handleOpenEditModal(volunteer)}
-                  >
-                    <PencilSimpleIcon size={18} />
-                  </button>
-                  <button
+                      aria-label={`Editar ${volunteer.apelido}`}
+                      onClick={() => handleOpenEditModal(volunteer)}
+                    >
+                      <PencilSimpleIcon size={18} />
+                    </button>
+                    <button
                     title="Excluir"
-                    aria-label={`Excluir ${volunteer.apelido}`}
-                    onClick={() => handleOpenDeleteModal(volunteer)}
-                  >
-                    <TrashIcon size={18} />
-                  </button>
-                </td>
-              </tr>
+                      aria-label={`Excluir ${volunteer.apelido}`}
+                      onClick={() => handleOpenDeleteModal(volunteer)}
+                    >
+                      <TrashIcon size={18} />
+                    </button>
+                  </td>
+                </tr>
               ))
             )}
           </tbody>
