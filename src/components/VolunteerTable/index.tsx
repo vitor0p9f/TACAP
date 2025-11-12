@@ -37,6 +37,10 @@ export function VolunteerTable({
   const [showResultado, setShowResultado] = useState(false);
 
   const [debouncedSearch, setDebouncedSearch] = useState(searchTerm);
+  const [sortColumn, setSortColumn] = useState<
+    'apelido' | 'graduacao' | 'tempo_pratica' | 'realizouAvaliacao' | null
+  >(null);
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const isFirstLoad = useRef(true);
   const populationContext = useContext(PopulationContext);
 
@@ -130,8 +134,8 @@ export function VolunteerTable({
             setVolunteers((prev) => prev.map((v) => (
               v.id === selectedVolunteer.id ? { ...v, realizouAvaliacao: true } : v
             )));
-            setModal(null); // Fecha o modal de avaliação mas mantém o selectedVolunteer
-            setShowResultado(true);
+        setModal(null); // Fecha o modal de avaliação mas mantém o selectedVolunteer
+        setShowResultado(true);
         populationContext.addAssessment(assessment)
       }
     }
@@ -147,6 +151,17 @@ export function VolunteerTable({
   const closeModal = () => {
     setModal(null);
     setSelectedVolunteer(null);
+  };
+
+  const handleSort = (
+    column: 'apelido' | 'graduacao' | 'tempo_pratica' | 'realizouAvaliacao'
+  ) => {
+    if (sortColumn === column) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortColumn(column);
+      setSortDirection('asc');
+    }
   };
 
   // Função para extrair anos da string de tempo de prática
@@ -173,49 +188,83 @@ export function VolunteerTable({
   }
 
   const filteredVolunteers = useMemo(() => {
-    if (!filters) return volunteers;
+    let result = volunteers;
 
-    return volunteers.filter((volunteer) => {
-      // Filtro de graduação
-      if (filters.graduacao.length > 0 && volunteer.graduacao) {
-        if (!filters.graduacao.includes(volunteer.graduacao)) {
-          return false;
+    if (filters) {
+      result = result.filter((volunteer) => {
+        // Filtro de graduação
+        if (filters.graduacao.length > 0 && volunteer.graduacao) {
+          if (!filters.graduacao.includes(volunteer.graduacao)) {
+            return false;
+          }
         }
-      }
 
-      // Filtro de avaliação realizada
-      if (filters.realizouAvaliacao !== null) {
-        const realizou = volunteer.realizouAvaliacao === true;
+        // Filtro de avaliação realizada
+        if (filters.realizouAvaliacao !== null) {
+          const realizou = volunteer.realizouAvaliacao === true;
         if (filters.realizouAvaliacao === 'sim' && !realizou) {
-          return false;
-        }
+            return false;
+          }
         if (filters.realizouAvaliacao === 'nao' && realizou) {
-          return false;
+            return false;
+          }
         }
-      }
 
-      if (filters.tempoPratica !== null) {
-        const anos = parseYearsFromTempoPratica(volunteer.tempo_pratica);
+        if (filters.tempoPratica !== null) {
+          const anos = parseYearsFromTempoPratica(volunteer.tempo_pratica);
 
-        switch (filters.tempoPratica) {
+          switch (filters.tempoPratica) {
           case 'menos-1':
-            if (anos >= 1) return false;
-            break;
+              if (anos >= 1) return false;
+              break;
           case '1-3':
-            if (anos < 1 || anos >= 3) return false;
-            break;
+              if (anos < 1 || anos >= 3) return false;
+              break;
           case '3-5':
-            if (anos < 3 || anos >= 5) return false;
-            break;
+              if (anos < 3 || anos >= 5) return false;
+              break;
           case 'mais-5':
-            if (anos < 5) return false;
-            break;
+              if (anos < 5) return false;
+              break;
+          }
         }
-      }
 
-      return true;
-    });
-  }, [volunteers, filters]);
+        return true;
+      });
+    }
+
+    // Aplicar ordenação
+    if (sortColumn) {
+      result = [...result].sort((a, b) => {
+        let aValue: any;
+        let bValue: any;
+
+        if (sortColumn === 'tempo_pratica') {
+          aValue = parseYearsFromTempoPratica(a.tempo_pratica);
+          bValue = parseYearsFromTempoPratica(b.tempo_pratica);
+        } else if (sortColumn === 'realizouAvaliacao') {
+          aValue = a.realizouAvaliacao ? 1 : 0;
+          bValue = b.realizouAvaliacao ? 1 : 0;
+        } else {
+          aValue = a[sortColumn] || '';
+          bValue = b[sortColumn] || '';
+        }
+
+        if (typeof aValue === 'string' && typeof bValue === 'string') {
+          const comparison = aValue.localeCompare(bValue, 'pt-BR', {
+            sensitivity: 'base',
+          });
+          return sortDirection === 'asc' ? comparison : -comparison;
+        }
+
+        if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
+        if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
+        return 0;
+      });
+    }
+
+    return result;
+  }, [volunteers, filters, sortColumn, sortDirection]);
 
   if (isLoading) {
     return <S.Container>Carregando voluntários...</S.Container>;
@@ -231,10 +280,38 @@ export function VolunteerTable({
         <table>
           <thead>
             <tr>
-              <th>Apelido</th>
-              <th>Graduação</th>
-              <th>Tempo de prática</th>
-              <th>Realizou avaliação</th>
+              <th
+                onClick={() => handleSort('apelido')}
+                style={{ cursor: 'pointer' }}
+              >
+                Apelido{' '}
+                {sortColumn === 'apelido' &&
+                  (sortDirection === 'asc' ? '↑' : '↓')}
+              </th>
+              <th
+                onClick={() => handleSort('graduacao')}
+                style={{ cursor: 'pointer' }}
+              >
+                Graduação{' '}
+                {sortColumn === 'graduacao' &&
+                  (sortDirection === 'asc' ? '↑' : '↓')}
+              </th>
+              <th
+                onClick={() => handleSort('tempo_pratica')}
+                style={{ cursor: 'pointer' }}
+              >
+                Tempo de prática{' '}
+                {sortColumn === 'tempo_pratica' &&
+                  (sortDirection === 'asc' ? '↑' : '↓')}
+              </th>
+              <th
+                onClick={() => handleSort('realizouAvaliacao')}
+                style={{ cursor: 'pointer' }}
+              >
+                Realizou avaliação{' '}
+                {sortColumn === 'realizouAvaliacao' &&
+                  (sortDirection === 'asc' ? '↑' : '↓')}
+              </th>
               <th className="actions-header">Ações</th>
             </tr>
           </thead>
@@ -252,10 +329,10 @@ export function VolunteerTable({
                   <td>{volunteer.graduacao}</td>
                   <td>{volunteer.tempo_pratica}</td>
                   <td>{volunteer.realizouAvaliacao ? 'Sim' : 'Não'}</td>
-                <td className="actions-cell">
+                  <td className="actions-cell">
                     {volunteer.realizouAvaliacao ? (
                       <button
-                      title="Resumo físico"
+                        title="Resumo físico"
                         aria-label={`Resumo físico de ${volunteer.apelido}`}
                       onClick={() => openResumoFisico && volunteer.id && openResumoFisico(volunteer.id)}
                       >
@@ -263,7 +340,7 @@ export function VolunteerTable({
                       </button>
                     ) : (
                       <button
-                      title="Realizar avaliação"
+                        title="Realizar avaliação"
                         aria-label={`Realizar avaliação de ${volunteer.apelido}`}
                         onClick={() => handleOpenAssessmentModal(volunteer)}
                       >
@@ -271,14 +348,14 @@ export function VolunteerTable({
                       </button>
                     )}
                     <button
-                    title="Editar"
+                      title="Editar"
                       aria-label={`Editar ${volunteer.apelido}`}
                       onClick={() => handleOpenEditModal(volunteer)}
                     >
                       <PencilSimpleIcon size={18} />
                     </button>
                     <button
-                    title="Excluir"
+                      title="Excluir"
                       aria-label={`Excluir ${volunteer.apelido}`}
                       onClick={() => handleOpenDeleteModal(volunteer)}
                     >
