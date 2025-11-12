@@ -15,7 +15,24 @@ interface FilterModalProps {
   currentFilters: FilterOptions;
 }
 
-const graduacaoOptions = ['Branca', 'Amarela', 'Laranja', 'Verde', 'Azul', 'Roxa', 'Marrom', 'Preta'];
+const graduacaoOptions = [
+  'Sem corda',
+  'Crua',
+  'Verde',
+  'Amarela',
+  'Azul',
+  'Roxa',
+  'Marrom',
+  'Vermelha',
+  'Laranja',
+  'Preta',
+  'Graduado',
+  'Instrutor',
+  'Professor',
+  'Contra mestre',
+  'Mestre',
+  'Grão mestre'
+];
 
 export function FilterModal({ isOpen, onClose, onApplyFilter, currentFilters }: FilterModalProps) {
   const [selectedGraduacoes, setSelectedGraduacoes] = useState<string[]>(currentFilters.graduacao);
