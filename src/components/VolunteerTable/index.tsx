@@ -194,7 +194,11 @@ export function VolunteerTable({
       result = result.filter((volunteer) => {
         // Filtro de graduação
         if (filters.graduacao.length > 0 && volunteer.graduacao) {
-          if (!filters.graduacao.includes(volunteer.graduacao)) {
+          const graduacaoLower = volunteer.graduacao.toLowerCase();
+          const hasMatch = filters.graduacao.some(
+            (filter) => filter.toLowerCase() === graduacaoLower
+          );
+          if (!hasMatch) {
             return false;
           }
         }
