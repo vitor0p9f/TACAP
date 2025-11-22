@@ -18,6 +18,7 @@ interface VolunteersTableProps {
   filters?: FilterOptions;
   openResumoFisico?: (voluntarioId: number) => void;
   openResultadoAvaliacao?: (voluntarioId: number) => void;
+  onFilteredDataChange?: (ids: number[]) => void;
 }
 
 export function VolunteerTable({
@@ -27,6 +28,7 @@ export function VolunteerTable({
   filters,
   openResumoFisico,
   openResultadoAvaliacao,
+  onFilteredDataChange,
 }: VolunteersTableProps) {
   const [volunteers, setVolunteers] = useState<Voluntario[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -93,8 +95,8 @@ export function VolunteerTable({
         setVolunteers(volunteers.filter((v) => v.id !== selectedVolunteer.id));
         showSuccessMessage('Voluntário deletado com sucesso!');
         closeModal();
-        populationContext.removeVolunteer(selectedVolunteer)
-        populationContext.removeAssessment(assessments[0])
+        populationContext.removeVolunteer(selectedVolunteer);
+        populationContext.removeAssessment(assessments[0]);
       } catch (err) {
         console.error('Erro ao deletar voluntário:', err);
         alert('Ocorreu um erro ao deletar o voluntário.');
@@ -126,17 +128,21 @@ export function VolunteerTable({
         if_valor:fatigue,
         voluntario_id: selectedVolunteer.id!,
         pse: data.rate_of_perceived_exertion,
-            rfc: data.final_heart_rate - data.heart_rate_after_one_minute
-      })
+        rfc: data.final_heart_rate - data.heart_rate_after_one_minute,
+      });
 
       if (assessment) {
-            showSuccessMessage('Voluntário avaliado com sucesso!');
-            setVolunteers((prev) => prev.map((v) => (
-              v.id === selectedVolunteer.id ? { ...v, realizouAvaliacao: true } : v
-            )));
+        showSuccessMessage("Voluntário avaliado com sucesso!");
+        setVolunteers((prev) =>
+          prev.map((v) =>
+            v.id === selectedVolunteer.id
+              ? { ...v, realizouAvaliacao: true }
+              : v
+          )
+        );
         setModal(null); // Fecha o modal de avaliação mas mantém o selectedVolunteer
         setShowResultado(true);
-        populationContext.addAssessment(assessment)
+        populationContext.addAssessment(assessment);
       }
     }
   };
@@ -166,26 +172,26 @@ export function VolunteerTable({
 
   // Função para extrair anos da string de tempo de prática
   const parseYearsFromTempoPratica = (tempoPratica?: string): number => {
-    if (!tempoPratica) return 0
+    if (!tempoPratica) return 0;
 
-    const tempoStr = String(tempoPratica).trim().toLowerCase()
+    const tempoStr = String(tempoPratica).trim().toLowerCase();
 
     const patterns = [
       /(\d+\.?\d*)\s*anos?/,
       /(\d+\.?\d*)\s*years?/,
       /^(\d+\.?\d*)$/,
-    ]
+    ];
 
     for (const pattern of patterns) {
-      const match = tempoStr.match(pattern)
+      const match = tempoStr.match(pattern);
       if (match) {
-        const value = parseFloat(match[1])
-        return isNaN(value) ? 0 : value
+        const value = parseFloat(match[1]);
+        return isNaN(value) ? 0 : value;
       }
     }
 
-    return 0
-  }
+    return 0;
+  };
 
   const filteredVolunteers = useMemo(() => {
     let result = volunteers;
@@ -218,18 +224,18 @@ export function VolunteerTable({
           const anos = parseYearsFromTempoPratica(volunteer.tempo_pratica);
 
           switch (filters.tempoPratica) {
-          case 'menos-1':
-              if (anos >= 1) return false;
-              break;
-          case '1-3':
-              if (anos < 1 || anos >= 3) return false;
-              break;
-          case '3-5':
-              if (anos < 3 || anos >= 5) return false;
-              break;
-          case 'mais-5':
-              if (anos < 5) return false;
-              break;
+            case 'menos-1':
+                if (anos >= 1) return false;
+                break;
+            case '1-3':
+                if (anos < 1 || anos >= 3) return false;
+                break;
+            case '3-5':
+                if (anos < 3 || anos >= 5) return false;
+                break;
+            case 'mais-5':
+                if (anos < 5) return false;
+                break;
           }
         }
 
@@ -269,6 +275,15 @@ export function VolunteerTable({
 
     return result;
   }, [volunteers, filters, sortColumn, sortDirection]);
+
+  useEffect(() => {
+    if (onFilteredDataChange) {
+      const ids = filteredVolunteers
+        .map((v) => v.id)
+        .filter((id): id is number => id !== undefined);
+      onFilteredDataChange(ids);
+    }
+  }, [filteredVolunteers, onFilteredDataChange]);
 
   if (isLoading) {
     return <S.Container>Carregando voluntários...</S.Container>;
@@ -332,7 +347,7 @@ export function VolunteerTable({
                   <td>{volunteer.apelido}</td>
                   <td>{volunteer.graduacao}</td>
                   <td>{volunteer.tempo_pratica}</td>
-                  <td>{volunteer.realizouAvaliacao ? 'Sim' : 'Não'}</td>
+                  <td>{volunteer.realizouAvaliacao ? "Sim" : "Não"}</td>
                   <td className="actions-cell">
                     {volunteer.realizouAvaliacao ? (
                       <button

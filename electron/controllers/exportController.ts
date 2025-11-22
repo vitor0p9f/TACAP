@@ -27,7 +27,7 @@ function convertToCSV(data: any[]): string {
 }
 
 export function registerExportRoutes() {
-  ipcMain.handle("export:csv", async (event) => {
+  ipcMain.handle("export:csv", async (event, filteredIds?: number[]) => {
     const window = BrowserWindow.fromWebContents(event.sender);
     if (!window) {
       return { success: false, message: "Janela não encontrada." };
@@ -35,7 +35,13 @@ export function registerExportRoutes() {
 
     try {
       // Buscar todos os voluntários
-      const voluntarios: Voluntario[] = await voluntarioService.list();
+      let voluntarios: Voluntario[] = await voluntarioService.list();
+
+      // Se houver IDs filtrados, filtrar a lista
+      if (filteredIds && Array.isArray(filteredIds)) {
+        voluntarios = voluntarios.filter((v) => filteredIds.includes(v.id!));
+      }
+
       if (voluntarios.length === 0) {
         return {
           success: false,

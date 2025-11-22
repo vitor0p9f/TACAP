@@ -26,6 +26,7 @@ export function VolunteersPage({
     realizouAvaliacao: null,
     tempoPratica: null,
   });
+  const [filteredIds, setFilteredIds] = useState<number[]>([]);
   const isDevelopment = import.meta.env.DEV;
 
   const showSuccessMessage = (message: string) => {
@@ -64,16 +65,17 @@ export function VolunteersPage({
   };
 
   const hasActiveFilters = filters.graduacao.length > 0 || 
-                          filters.realizouAvaliacao !== null || 
-                          filters.tempoPratica !== null;
+    filters.realizouAvaliacao !== null ||
+    filters.tempoPratica !== null;
 
   return (
     <S.Container>
-      <Header 
-        onExportSuccess={showSuccessMessage} 
+      <Header
+        onExportSuccess={showSuccessMessage}
         onSearchChange={setSearchTerm}
         onFilterClick={() => setIsFilterModalOpen(true)}
         hasActiveFilters={hasActiveFilters}
+        filteredIds={filteredIds}
       />
 
       {isDevelopment && (
@@ -87,8 +89,13 @@ export function VolunteersPage({
         showSuccessMessage={showSuccessMessage}
         searchTerm={searchTerm}
         filters={filters}
-        openResumoFisico={(id: number) => setModalResumo({open: true, voluntarioId: id})}
-        openResultadoAvaliacao={(id: number) => setModalResultado({open: true, voluntarioId: id})}
+        openResumoFisico={(id: number) =>
+          setModalResumo({ open: true, voluntarioId: id })
+        }
+        openResultadoAvaliacao={(id: number) =>
+          setModalResultado({ open: true, voluntarioId: id })
+        }
+        onFilteredDataChange={setFilteredIds}
       />
 
       <SuccessModal
