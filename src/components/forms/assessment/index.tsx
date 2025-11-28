@@ -36,49 +36,49 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({ onSubmit }) => {
               type="number"
               min={0}
               max={25}
-              label="Golpes - 1ª série (15 segundos)"
+              label="Golpes na 1ª série [15s]"
             />
             <Input
               {...register("second_round_blows", { required: true, valueAsNumber: true })}
               type="number"
               min={0}
               max={50}
-              label="Golpes - 2ª série (30 segundos)"
+              label="Golpes na 2ª série [30s]"
             />
             <Input
               {...register("third_round_blows", { required: true, valueAsNumber: true })}
               type="number"
               min={0}
               max={50}
-              label="Golpes - 3ª série (30 segundos)"
+              label="Golpes na 3ª série [30s]"
             />
             <Input
               {...register("third_roud_latest_seconds_blows", { required: true, valueAsNumber: true })}
               type="number"
               min={0}
               max={25}
-              label="Golpes - 15 segundos finais da 3ª série"
+              label="Golpes 15s finais da 3ª série"
             />
             <Input
               {...register("third_round_total_blows", { required: true, valueAsNumber: true })}
               type="number"
               min={0}
               max={75}
-              label="Golpes totais - 3ª série"
+              label="Total de golpes nas 3 séries"
             />
             <Input
               {...register("final_heart_rate", { required: true, valueAsNumber: true })}
               type="number"
               min={60}
               max={250}
-              label="Frequência cardíaca - Final"
+              label="FC Final"
             />
             <Input
               {...register("heart_rate_after_one_minute", { required: true, valueAsNumber: true })}
               type="number"
               min={60}
               max={250}
-              label="Frequência cardíaca - Após 1 minuto"
+              label="FC 1 minuto pós-teste"
             />
             <Input
               {...register("rate_of_perceived_exertion", { required: true, valueAsNumber: true })}
