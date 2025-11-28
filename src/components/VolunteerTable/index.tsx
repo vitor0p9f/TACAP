@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useContext } from 'react';
+import React, { useState, useEffect, useRef, useContext, useMemo } from 'react';
 import { FileTextIcon, ClipboardIcon, PencilSimpleIcon, TrashIcon } from '@phosphor-icons/react';
 import * as S from './styles';
 import { EditVolunteerModal } from '../modals/EditVolunteerModal';
@@ -9,21 +9,26 @@ import { avaliacaoClient } from '../../services/avaliacaoClient';
 import { FormData } from '../forms/assessment';
 import ResultadoAvaliacao from '../ResultadoAvaliacao';
 import { PopulationContext } from '../../context/population';
+import { FilterOptions } from '../modals/FilterModal';
 
 interface VolunteersTableProps {
   setCurrentPage: (page: string) => void;
   showSuccessMessage: (message: string) => void;
   searchTerm?: string;
+  filters?: FilterOptions;
   openResumoFisico?: (voluntarioId: number) => void;
   openResultadoAvaliacao?: (voluntarioId: number) => void;
+  onFilteredDataChange?: (ids: number[]) => void;
 }
 
 export function VolunteerTable({
   setCurrentPage,
   showSuccessMessage,
   searchTerm = "",
+  filters,
   openResumoFisico,
   openResultadoAvaliacao,
+  onFilteredDataChange,
 }: VolunteersTableProps) {
   const [volunteers, setVolunteers] = useState<Voluntario[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -34,6 +39,10 @@ export function VolunteerTable({
   const [showResultado, setShowResultado] = useState(false);
 
   const [debouncedSearch, setDebouncedSearch] = useState(searchTerm);
+  const [sortColumn, setSortColumn] = useState<
+    'apelido' | 'graduacao' | 'tempo_pratica' | 'realizouAvaliacao' | null
+  >(null);
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const isFirstLoad = useRef(true);
   const populationContext = useContext(PopulationContext);
 
@@ -50,7 +59,13 @@ export function VolunteerTable({
           "voluntario:list",
           debouncedSearch
         )) as Voluntario[];
-        setVolunteers(fetchedVolunteers);
+
+        const volunteersWithBooleanFlag = fetchedVolunteers.map((v) => ({
+          ...v,
+          realizouAvaliacao: Boolean(v.realizouAvaliacao),
+        }));
+
+        setVolunteers(volunteersWithBooleanFlag);
         setError(null);
       } catch (err) {
         console.error('Erro ao buscar voluntários:', err);
@@ -80,8 +95,8 @@ export function VolunteerTable({
         setVolunteers(volunteers.filter((v) => v.id !== selectedVolunteer.id));
         showSuccessMessage('Voluntário deletado com sucesso!');
         closeModal();
-        populationContext.removeVolunteer(selectedVolunteer)
-        populationContext.removeAssessment(assessments[0])
+        populationContext.removeVolunteer(selectedVolunteer);
+        populationContext.removeAssessment(assessments[0]);
       } catch (err) {
         console.error('Erro ao deletar voluntário:', err);
         alert('Ocorreu um erro ao deletar o voluntário.');
@@ -105,26 +120,30 @@ export function VolunteerTable({
         let iacap = (data.final_heart_rate + data.heart_rate_after_one_minute)/total_blows
         let power = (total_blows * (selectedVolunteer.peso ?? 0))/1.25
         let fatigue = ((data.first_round_blows - data.third_roud_latest_seconds_blows) * 100)/data.first_round_blows
-        
-        let assessment = await avaliacaoClient.create({
-            golpes: total_blows,
-            iacap,
-            potencia: power,
-            if_valor:fatigue,
-            voluntario_id: selectedVolunteer.id!,
-            pse: data.rate_of_perceived_exertion,
-            rfc: data.final_heart_rate - data.heart_rate_after_one_minute
-        })
 
-        if (assessment) {
-            showSuccessMessage('Voluntário avaliado com sucesso!');
-            setVolunteers((prev) => prev.map((v) => (
-              v.id === selectedVolunteer.id ? { ...v, realizouAvaliacao: true } : v
-            )));
-            setModal(null); // Fecha o modal de avaliação mas mantém o selectedVolunteer
-            setShowResultado(true);
-            populationContext.addAssessment(assessment)
-        }
+      let assessment = await avaliacaoClient.create({
+        golpes: total_blows,
+        iacap,
+        potencia: power,
+        if_valor:fatigue,
+        voluntario_id: selectedVolunteer.id!,
+        pse: data.rate_of_perceived_exertion,
+        rfc: data.final_heart_rate - data.heart_rate_after_one_minute,
+      });
+
+      if (assessment) {
+        showSuccessMessage("Voluntário avaliado com sucesso!");
+        setVolunteers((prev) =>
+          prev.map((v) =>
+            v.id === selectedVolunteer.id
+              ? { ...v, realizouAvaliacao: true }
+              : v
+          )
+        );
+        setModal(null); // Fecha o modal de avaliação mas mantém o selectedVolunteer
+        setShowResultado(true);
+        populationContext.addAssessment(assessment);
+      }
     }
   };
 
@@ -140,6 +159,132 @@ export function VolunteerTable({
     setSelectedVolunteer(null);
   };
 
+  const handleSort = (
+    column: 'apelido' | 'graduacao' | 'tempo_pratica' | 'realizouAvaliacao'
+  ) => {
+    if (sortColumn === column) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortColumn(column);
+      setSortDirection('asc');
+    }
+  };
+
+  // Função para extrair anos da string de tempo de prática
+  const parseYearsFromTempoPratica = (tempoPratica?: string): number => {
+    if (!tempoPratica) return 0;
+
+    const tempoStr = String(tempoPratica).trim().toLowerCase();
+
+    const patterns = [
+      /(\d+\.?\d*)\s*anos?/,
+      /(\d+\.?\d*)\s*years?/,
+      /^(\d+\.?\d*)$/,
+    ];
+
+    for (const pattern of patterns) {
+      const match = tempoStr.match(pattern);
+      if (match) {
+        const value = parseFloat(match[1]);
+        return isNaN(value) ? 0 : value;
+      }
+    }
+
+    return 0;
+  };
+
+  const filteredVolunteers = useMemo(() => {
+    let result = volunteers;
+
+    if (filters) {
+      result = result.filter((volunteer) => {
+        // Filtro de graduação
+        if (filters.graduacao.length > 0 && volunteer.graduacao) {
+          const graduacaoLower = volunteer.graduacao.toLowerCase();
+          const hasMatch = filters.graduacao.some(
+            (filter) => filter.toLowerCase() === graduacaoLower
+          );
+          if (!hasMatch) {
+            return false;
+          }
+        }
+
+        // Filtro de avaliação realizada
+        if (filters.realizouAvaliacao !== null) {
+          const realizou = volunteer.realizouAvaliacao === true;
+        if (filters.realizouAvaliacao === 'sim' && !realizou) {
+            return false;
+          }
+        if (filters.realizouAvaliacao === 'nao' && realizou) {
+            return false;
+          }
+        }
+
+        if (filters.tempoPratica !== null) {
+          const anos = parseYearsFromTempoPratica(volunteer.tempo_pratica);
+
+          switch (filters.tempoPratica) {
+            case 'menos-1':
+                if (anos >= 1) return false;
+                break;
+            case '1-3':
+                if (anos < 1 || anos >= 3) return false;
+                break;
+            case '3-5':
+                if (anos < 3 || anos >= 5) return false;
+                break;
+            case 'mais-5':
+                if (anos < 5) return false;
+                break;
+          }
+        }
+
+        return true;
+      });
+    }
+
+    // Aplicar ordenação
+    if (sortColumn) {
+      result = [...result].sort((a, b) => {
+        let aValue: any;
+        let bValue: any;
+
+        if (sortColumn === 'tempo_pratica') {
+          aValue = parseYearsFromTempoPratica(a.tempo_pratica);
+          bValue = parseYearsFromTempoPratica(b.tempo_pratica);
+        } else if (sortColumn === 'realizouAvaliacao') {
+          aValue = a.realizouAvaliacao ? 1 : 0;
+          bValue = b.realizouAvaliacao ? 1 : 0;
+        } else {
+          aValue = a[sortColumn] || '';
+          bValue = b[sortColumn] || '';
+        }
+
+        if (typeof aValue === 'string' && typeof bValue === 'string') {
+          const comparison = aValue.localeCompare(bValue, 'pt-BR', {
+            sensitivity: 'base',
+          });
+          return sortDirection === 'asc' ? comparison : -comparison;
+        }
+
+        if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
+        if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
+        return 0;
+      });
+    }
+
+    return result;
+  }, [volunteers, filters, sortColumn, sortDirection]);
+
+  useEffect(() => {
+    if (onFilteredDataChange) {
+      const ids = filteredVolunteers
+        .map((v) => v.id)
+        .filter((id): id is number => id !== undefined);
+      onFilteredDataChange(ids);
+    }
+  }, [filteredVolunteers, onFilteredDataChange]);
+
   if (isLoading) {
     return <S.Container>Carregando voluntários...</S.Container>;
   }
@@ -154,55 +299,91 @@ export function VolunteerTable({
         <table>
           <thead>
             <tr>
-              <th>Apelido</th>
-              <th>Graduação</th>
-              <th>Tempo de prática</th>
-              <th>Realizou avaliação</th>
+              <th
+                onClick={() => handleSort('apelido')}
+                style={{ cursor: 'pointer' }}
+              >
+                Apelido{' '}
+                {sortColumn === 'apelido' &&
+                  (sortDirection === 'asc' ? '↑' : '↓')}
+              </th>
+              <th
+                onClick={() => handleSort('graduacao')}
+                style={{ cursor: 'pointer' }}
+              >
+                Graduação{' '}
+                {sortColumn === 'graduacao' &&
+                  (sortDirection === 'asc' ? '↑' : '↓')}
+              </th>
+              <th
+                onClick={() => handleSort('tempo_pratica')}
+                style={{ cursor: 'pointer' }}
+              >
+                Tempo de prática{' '}
+                {sortColumn === 'tempo_pratica' &&
+                  (sortDirection === 'asc' ? '↑' : '↓')}
+              </th>
+              <th
+                onClick={() => handleSort('realizouAvaliacao')}
+                style={{ cursor: 'pointer' }}
+              >
+                Realizou avaliação{' '}
+                {sortColumn === 'realizouAvaliacao' &&
+                  (sortDirection === 'asc' ? '↑' : '↓')}
+              </th>
               <th className="actions-header">Ações</th>
             </tr>
           </thead>
           <tbody>
-            {volunteers.map((volunteer) => (
-              <tr key={volunteer.id}>
-                <td>{volunteer.apelido}</td>
-                <td>{volunteer.graduacao}</td>
-                <td>{volunteer.tempo_pratica}</td>
-                <td>{volunteer.realizouAvaliacao ? 'Sim' : 'Não'}</td>
-                <td className="actions-cell">
-                  {volunteer.realizouAvaliacao ? (
-                    <button
-                      title="Resumo físico"
-                      aria-label={`Resumo físico de ${volunteer.apelido}`}
-                      onClick={() => openResumoFisico && volunteer.id && openResumoFisico(volunteer.id)}
-                    >
-                      <FileTextIcon size={18} />
-                    </button>
-                  ) : (
-                    <button
-                      title="Realizar avaliação"
-                      aria-label={`Realizar avaliação de ${volunteer.apelido}`}
-                      onClick={() => handleOpenAssessmentModal(volunteer)}
-                    >
-                      <ClipboardIcon size={18} />
-                    </button>
-                  )}
-                  <button
-                    title="Editar"
-                    aria-label={`Editar ${volunteer.apelido}`}
-                    onClick={() => handleOpenEditModal(volunteer)}
-                  >
-                    <PencilSimpleIcon size={18} />
-                  </button>
-                  <button
-                    title="Excluir"
-                    aria-label={`Excluir ${volunteer.apelido}`}
-                    onClick={() => handleOpenDeleteModal(volunteer)}
-                  >
-                    <TrashIcon size={18} />
-                  </button>
+            {filteredVolunteers.length === 0 ? (
+              <tr>
+                <td colSpan={5} style={{ textAlign: 'center', padding: '40px', color: '#9aa9b3' }}>
+                  Nenhum voluntário encontrado com os filtros aplicados.
                 </td>
               </tr>
-            ))}
+            ) : (
+              filteredVolunteers.map((volunteer) => (
+                <tr key={volunteer.id}>
+                  <td>{volunteer.apelido}</td>
+                  <td>{volunteer.graduacao}</td>
+                  <td>{volunteer.tempo_pratica}</td>
+                  <td>{volunteer.realizouAvaliacao ? "Sim" : "Não"}</td>
+                  <td className="actions-cell">
+                    {volunteer.realizouAvaliacao ? (
+                      <button
+                        title="Resumo físico"
+                        aria-label={`Resumo físico de ${volunteer.apelido}`}
+                      onClick={() => openResumoFisico && volunteer.id && openResumoFisico(volunteer.id)}
+                      >
+                        <FileTextIcon size={18} />
+                      </button>
+                    ) : (
+                      <button
+                        title="Realizar avaliação"
+                        aria-label={`Realizar avaliação de ${volunteer.apelido}`}
+                        onClick={() => handleOpenAssessmentModal(volunteer)}
+                      >
+                        <ClipboardIcon size={18} />
+                      </button>
+                    )}
+                    <button
+                      title="Editar"
+                      aria-label={`Editar ${volunteer.apelido}`}
+                      onClick={() => handleOpenEditModal(volunteer)}
+                    >
+                      <PencilSimpleIcon size={18} />
+                    </button>
+                    <button
+                      title="Excluir"
+                      aria-label={`Excluir ${volunteer.apelido}`}
+                      onClick={() => handleOpenDeleteModal(volunteer)}
+                    >
+                      <TrashIcon size={18} />
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </S.TableWrapper>

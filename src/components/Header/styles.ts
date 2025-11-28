@@ -53,3 +53,36 @@ export const HeaderActions = styled.div`
         }
     }
 `;
+
+export const FilterButton = styled.button<{ $hasActiveFilters?: boolean }>`
+    position: relative;
+    background: ${props => props.$hasActiveFilters ? 'var(--cor-verde) !important' : 'none'};
+    border: none;
+    cursor: pointer;
+    color: ${props => props.$hasActiveFilters ? 'white !important' : 'var(--cor-texto-secundario)'};
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    transition: all 0.2s;
+
+    &:hover {
+        color: ${props => props.$hasActiveFilters ? 'white !important' : 'var(--cor-texto-principal)'};
+        background: ${props => props.$hasActiveFilters ? 'var(--cor-verde) !important' : '#f2f7f9'};
+    }
+
+    ${props => props.$hasActiveFilters && `
+        &::after {
+            content: '';
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            width: 8px;
+            height: 8px;
+            background: white;
+            border-radius: 50%;
+            border: 2px solid var(--cor-verde);
+        }
+    `}
+`;

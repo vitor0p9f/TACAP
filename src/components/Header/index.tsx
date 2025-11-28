@@ -10,24 +10,36 @@ interface ExportResult {
 interface HeaderProps {
   onExportSuccess: (message: string) => void;
   onSearchChange?: (term: string) => void;
+  onFilterClick?: () => void;
+  hasActiveFilters?: boolean;
+  filteredIds?: number[];
 }
 
-export function Header({ onExportSuccess, onSearchChange }: HeaderProps) {
+export function Header({
+  onExportSuccess,
+  onSearchChange,
+  onFilterClick,
+  hasActiveFilters,
+  filteredIds,
+}: HeaderProps) {
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onSearchChange?.(e.target.value);
   };
   const handleExportClick = async () => {
     try {
-      console.log("Iniciando exportação...");
+      console.log("Iniciando exportação...", filteredIds);
       // Chama a função do backend
-      const result = (await window.api.invoke("export:csv")) as ExportResult;
+      const result = (await window.api.invoke(
+        "export:csv",
+        filteredIds
+      )) as ExportResult;
 
       if (result.success) {
         console.log("Exportação bem-sucedida!");
         onExportSuccess(result.message); // Notifica o componente pai
       } else {
         console.error("Falha na exportação:", result.message);
-        alert("Ocorreu um erro inesperado ao tentar exportar os dados.");
+        alert(result.message);
       }
     } catch (error) {
       console.error("Erro crítico ao exportar:", error);
@@ -40,9 +52,13 @@ export function Header({ onExportSuccess, onSearchChange }: HeaderProps) {
         <input type="search" placeholder="Busca..." onChange={handleSearchChange} />
       </S.SearchBarWrapper>
       <S.HeaderActions>
-        <button title="Filtrar">
+        <S.FilterButton
+          title="Filtrar"
+          onClick={onFilterClick}
+          $hasActiveFilters={hasActiveFilters}
+        >
           <FunnelIcon size={22} />
-        </button>
+        </S.FilterButton>
         <button title="Exportar dados para CSV" onClick={handleExportClick}>
           <UploadSimpleIcon size={22} />
         </button>

@@ -1,12 +1,12 @@
-import styled from 'styled-components';
+import styled from "styled-components";
 
-const tableMinWidth = '900px';
+const tableMinWidth = "900px";
 
 export const Container = styled.div`
   width: 100%;
   box-sizing: border-box;
   padding: 20px;
-  font-family: Inter, 'Helvetica Neue', Arial, sans-serif;
+  font-family: Inter, "Helvetica Neue", Arial, sans-serif;
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -16,7 +16,7 @@ export const Container = styled.div`
 export const TableWrapper = styled.div`
   background: #fff;
   border-radius: 10px;
-  box-shadow: 0 1px 0 rgba(0,0,0,0.03);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.03);
   border: 1px solid #e6eef2;
   overflow: auto;
   flex: 1;
@@ -42,10 +42,17 @@ export const TableWrapper = styled.div`
         text-align: left;
         vertical-align: middle;
         white-space: nowrap;
+        user-select: none;
+        transition: color 0.2s;
+
+        &:hover:not(.actions-header) {
+          color: #6b7b83;
+        }
       }
 
       th.actions-header {
         text-align: center;
+        cursor: default;
       }
     }
   }
@@ -61,7 +68,6 @@ export const TableWrapper = styled.div`
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
-        
       }
 
       td.actions-cell {
@@ -124,24 +130,24 @@ export const TableWrapper = styled.div`
 `;
 
 export const Footer = styled.footer`
-    padding-top: 24px;
-    display: flex;
-    justify-content: center;
-    flex-shrink: 0;
-    
-    .add-button {
-        background-color: var(--cor-verde);
-        color: white;
-        border: none;
-        padding: 12px 32px;
-        font-size: 1rem;
-        font-weight: 600;
-        border-radius: 8px;
-        cursor: pointer;
-        transition: background-color 0.2s;
+  padding-top: 24px;
+  display: flex;
+  justify-content: center;
+  flex-shrink: 0;
 
-        &:hover {
-            opacity: 0.9;
-        }
+  .add-button {
+    background-color: var(--cor-verde);
+    color: white;
+    border: none;
+    padding: 12px 32px;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+
+    &:hover {
+      opacity: 0.9;
     }
+  }
 `;
