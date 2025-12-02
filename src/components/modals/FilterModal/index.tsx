@@ -16,22 +16,40 @@ interface FilterModalProps {
 }
 
 const graduacaoOptions = [
-  'Sem corda',
-  'Crua',
-  'Verde',
-  'Amarela',
-  'Azul',
-  'Roxa',
-  'Marrom',
-  'Vermelha',
-  'Laranja',
-  'Preta',
-  'Graduado',
-  'Instrutor',
-  'Professor',
-  'Contra mestre',
-  'Mestre',
-  'Grão mestre'
+  "Crua",
+  "Ponta Crua Amarela",
+  "Ponta Amarela",
+  "Ponta Amarela Laranja",
+  "Ponta Laranja",
+  "Ponta Laranja Azul",
+  "Ponta Azul",
+  "Crua Amarela",
+  "Amarela",
+  "Crua Laranja",
+  "Amarela Laranja",
+  "Laranja",
+  "Crua Azul",
+  "Amarela Azul",
+  "Laranja Azul",
+  "Azul",
+  "Azul Verde",
+  "Verde",
+  "Verde Roxa",
+  "Roxa",
+  "Roxa Marrom",
+  "Marrom",
+  "Marrom Vermelha",
+  "Roxa Amarela",
+  "Roxa Laranja",
+  "Roxa Azul",
+  "Marrom Amarela",
+  "Marrom Laranja",
+  "Marrom Azul",
+  "Marrom Verde",
+  "Marrom Branca",
+  "Vermelha",
+  "Vermelha Branca",
+  "Branca",
 ];
 
 export function FilterModal({ isOpen, onClose, onApplyFilter, currentFilters }: FilterModalProps) {
@@ -198,4 +216,3 @@ export function FilterModal({ isOpen, onClose, onApplyFilter, currentFilters }: 
     </S.Overlay>
   );
 }
-
