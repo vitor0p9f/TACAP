@@ -10,8 +10,8 @@ const PRACTICE_UNITS = ["meses", "anos"] as const;
 function generatePracticeTime() {
   const unit = faker.helpers.arrayElement(PRACTICE_UNITS);
   const value = unit === "meses"
-    ? faker.number.int({ min: 1, max: 11 })
-    : faker.number.int({ min: 1, max: 25 });
+      ? faker.number.int({ min: 1, max: 11 })
+      : faker.number.int({ min: 1, max: 25 });
 
   return `${value} ${unit}`;
 }
@@ -34,11 +34,40 @@ export async function runSeed() {
       peso: faker.number.float({ min: 50, max: 120, fractionDigits: 1 }),
       altura: faker.number.float({ min: 1.5, max: 2.0, fractionDigits: 2 }),
       graduacao: faker.helpers.arrayElement([
-        "Branca",
+        "Crua",
+        "Ponta Crua Amarela",
+        "Ponta Amarela",
+        "Ponta Amarela Laranja",
+        "Ponta Laranja",
+        "Ponta Laranja Azul",
+        "Ponta Azul",
+        "Crua Amarela",
         "Amarela",
+        "Crua Laranja",
+        "Amarela Laranja",
+        "Laranja",
+        "Crua Azul",
+        "Amarela Azul",
+        "Laranja Azul",
         "Azul",
+        "Azul Verde",
         "Verde",
+        "Verde Roxa",
         "Roxa",
+        "Roxa Marrom",
+        "Marrom",
+        "Marrom Vermelha",
+        "Roxa Amarela",
+        "Roxa Laranja",
+        "Roxa Azul",
+        "Marrom Amarela",
+        "Marrom Laranja",
+        "Marrom Azul",
+        "Marrom Verde",
+        "Marrom Branca",
+        "Vermelha",
+        "Vermelha Branca",
+        "Branca",
       ]),
       genero: faker.helpers.arrayElement(["Masculino", "Feminino"]),
       endereco: faker.location.streetAddress(),
@@ -61,4 +90,3 @@ export async function runSeed() {
 
   console.log("✅ Seeding concluído com sucesso!");
 }
-
